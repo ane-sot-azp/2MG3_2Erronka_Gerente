@@ -43,14 +43,16 @@ public class HornitzaileakController {
     @FXML private TableColumn<Osagaia, Double> colOsagaiPrezioa;
     @FXML private TableColumn<Osagaia, Integer> colOsagaiStock;
 
-    @FXML private ComboBox<Osagaia> comboOsagaiak;
-    @FXML private Button btnGehituOsagaia, btnKenduOsagaia;
-
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterOrdenatu;
     @FXML private Button btnAddHornitzailea, btnDeleteHornitzailea, atzeraBotoia, refreshButton;
 
-    @FXML private Label hornitzaileKopuruaLabel, osagaiKopuruaLabel;
+    @FXML private Label hornitzaileKopuruaLabel;
+    @FXML private Label lblOsagaiKopurua;
+    @FXML private Label lblStockTotala;
+    @FXML private Label lblInbentarioBalioa;
+    @FXML private Label lblStockGutxiKop;
+    @FXML private ListView<Osagaia> listStockGutxi;
 
     private ObservableList<Hornitzailea> hornitzaileakLista;
     private ObservableList<Osagaia> hornitzailearenOsagaiakLista;
@@ -84,10 +86,10 @@ public class HornitzaileakController {
             colOsagaiPrezioa.setCellValueFactory(new PropertyValueFactory<>("prezioa"));
             colOsagaiStock.setCellValueFactory(new PropertyValueFactory<>("stock"));
 
-            comboOsagaiak.setItems(osagaiakDisponibleLista);
-
             tableHornitzaileak.setItems(hornitzaileakLista);
             tableHornitzailearenOsagaiak.setItems(hornitzailearenOsagaiakLista);
+            tableHornitzaileak.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            tableHornitzailearenOsagaiak.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
             formularioakKonfiguratu();
             filtroakKonfiguratu();
@@ -131,10 +133,6 @@ public class HornitzaileakController {
 
         btnDeleteHornitzailea.setOnAction(e -> deleteHornitzailea());
 
-        btnGehituOsagaia.setOnAction(e -> gehituOsagaiaHornitzaileari());
-
-        btnKenduOsagaia.setOnAction(e -> kenduOsagaiaHornitzaileatik());
-
         if (refreshButton != null) {
             refreshButton.setOnAction(e -> datuakKargatu());
         }
@@ -159,10 +157,34 @@ public class HornitzaileakController {
 
     private void kargatuOsagaiak(int hornitzaileaId) {
         new Thread(() -> {
-            List<Osagaia> osagaiak = hornitzaileaService.getOsagaiakByHornitzailea(hornitzaileaId);
+            List<Osagaia> osagaiakGuztiak = OsagaiaService.getOsagaiak();
+            List<Osagaia> osagaiak = new java.util.ArrayList<>();
+            for (Osagaia o : osagaiakGuztiak) {
+                if (o != null && o.getHornitzaileakId() == hornitzaileaId) {
+                    osagaiak.add(o);
+                }
+            }
+            int stockTotala = 0;
+            double balioaTotala = 0;
+            java.util.List<Osagaia> stockGutxi = new java.util.ArrayList<>();
+            for (Osagaia o : osagaiak) {
+                stockTotala += o.getStock();
+                balioaTotala += o.getStock() * o.getPrezioa();
+                if (o.erosiBeharDa()) {
+                    stockGutxi.add(o);
+                }
+            }
+            int stockTotalaFinal = stockTotala;
+            double balioaTotalaFinal = balioaTotala;
+            List<Osagaia> osagaiakFinal = osagaiak;
+            List<Osagaia> stockGutxiFinal = stockGutxi;
             Platform.runLater(() -> {
-                hornitzailearenOsagaiakLista.setAll(osagaiak);
-                osagaiKopuruaLabel.setText(String.valueOf(osagaiak.size()));
+                hornitzailearenOsagaiakLista.setAll(osagaiakFinal);
+                if (lblOsagaiKopurua != null) lblOsagaiKopurua.setText(osagaiakFinal.size() + " osagai");
+                if (lblStockTotala != null) lblStockTotala.setText(String.valueOf(stockTotalaFinal));
+                if (lblInbentarioBalioa != null) lblInbentarioBalioa.setText(String.format(java.util.Locale.US, "%.2f€", balioaTotalaFinal));
+                if (lblStockGutxiKop != null) lblStockGutxiKop.setText(String.valueOf(stockGutxiFinal.size()));
+                if (listStockGutxi != null) listStockGutxi.getItems().setAll(stockGutxiFinal);
             });
         }).start();
     }
@@ -173,6 +195,11 @@ public class HornitzaileakController {
         txtHelbidea.clear();
         hornitzaileaEditatzen = null;
         hornitzailearenOsagaiakLista.clear();
+        if (lblOsagaiKopurua != null) lblOsagaiKopurua.setText("0 osagai");
+        if (lblStockTotala != null) lblStockTotala.setText("0");
+        if (lblInbentarioBalioa != null) lblInbentarioBalioa.setText("0.00€");
+        if (lblStockGutxiKop != null) lblStockGutxiKop.setText("0");
+        if (listStockGutxi != null) listStockGutxi.getItems().clear();
     }
 
     private void hornitzaileaGorde() {
@@ -234,6 +261,9 @@ public class HornitzaileakController {
                 osagaiakDisponibleLista.setAll(o);
                 hornitzaileKopuruaLabel.setText(String.valueOf(h.size()));
                 filtroakAplikatu();
+                if (hornitzaileaEditatzen != null) {
+                    kargatuOsagaiak(hornitzaileaEditatzen.getId());
+                }
             });
         }).start();
     }
@@ -253,26 +283,6 @@ public class HornitzaileakController {
             hornitzaileakLista.sort(Comparator.comparing(Hornitzailea::getIzena));
         } else {
             hornitzaileakLista.sort(Comparator.comparing(Hornitzailea::getId));
-        }
-    }
-
-    private void gehituOsagaiaHornitzaileari() {
-        Osagaia o = comboOsagaiak.getValue();
-        if (o != null && hornitzaileaEditatzen != null) {
-            if (hornitzaileaService.addOsagaiaToHornitzailea(hornitzaileaEditatzen.getId(), o.getId())) {
-                kargatuOsagaiak(hornitzaileaEditatzen.getId());
-                mostrarInfo("Osagaia gehitu da hornitzaileari");
-            }
-        }
-    }
-
-    private void kenduOsagaiaHornitzaileatik() {
-        Osagaia o = tableHornitzailearenOsagaiak.getSelectionModel().getSelectedItem();
-        if (o != null && hornitzaileaEditatzen != null) {
-            if (hornitzaileaService.removeOsagaiaFromHornitzailea(hornitzaileaEditatzen.getId(), o.getId())) {
-                kargatuOsagaiak(hornitzaileaEditatzen.getId());
-                mostrarInfo("Osagaia kendu da hornitzailetik");
-            }
         }
     }
 

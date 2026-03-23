@@ -11,6 +11,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -86,10 +87,10 @@
             <VBox spacing="10">
                 <TableView fx:id="tableHornitzaileak" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colHornitzaileId" text="ID" prefWidth="50"/>
-                        <TableColumn fx:id="colHornitzaileIzena" text="Izena" prefWidth="150"/>
-                        <TableColumn fx:id="colHornitzaileKontaktua" text="Kontaktua" prefWidth="150"/>
-                        <TableColumn fx:id="colHornitzaileHelbidea" text="Helbidea" prefWidth="200"/>
+                        <TableColumn fx:id="colHornitzaileId" text="ID" prefWidth="70"/>
+                        <TableColumn fx:id="colHornitzaileIzena" text="Izena" prefWidth="220"/>
+                        <TableColumn fx:id="colHornitzaileKontaktua" text="Kontaktua" prefWidth="220"/>
+                        <TableColumn fx:id="colHornitzaileHelbidea" text="Helbidea" prefWidth="340"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -114,21 +115,41 @@
 
     <bottom>
         <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1 0 0 0;">
-            <Label text="Hornitzaile honen osagaiak" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+            <HBox alignment="CENTER_LEFT">
+                <Label text="Hornitzaile honen osagaiak" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblOsagaiKopurua" style="-fx-text-fill: #718096; -fx-font-size: 14;" text="0 osagai"/>
+            </HBox>
             <HBox spacing="15">
-                <TableView fx:id="tableHornitzailearenOsagaiak" prefHeight="200" HBox.hgrow="ALWAYS">
+                <TableView fx:id="tableHornitzailearenOsagaiak" prefHeight="160" HBox.hgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colOsagaiIzena" text="Osagaia" prefWidth="200"/>
-                        <TableColumn fx:id="colOsagaiPrezioa" text="Prezioa" prefWidth="100"/>
-                        <TableColumn fx:id="colOsagaiStock" text="Stock" prefWidth="100"/>
+                        <TableColumn fx:id="colOsagaiIzena" text="Osagaia" prefWidth="240"/>
+                        <TableColumn fx:id="colOsagaiPrezioa" text="Prezioa" prefWidth="120"/>
+                        <TableColumn fx:id="colOsagaiStock" text="Stock" prefWidth="120"/>
                     </columns>
                 </TableView>
-                <VBox spacing="10" prefWidth="250">
-                    <Label text="Osagaia gehitu:"/>
-                    <ComboBox fx:id="comboOsagaiak" maxWidth="Infinity" promptText="Hautatu osagaia..."/>
-                    <Button fx:id="btnGehituOsagaia" text="Gehitu osagaia" maxWidth="Infinity" style="-fx-background-color: #38a169; -fx-text-fill: white;"/>
+                <VBox spacing="10" prefWidth="320" style="-fx-background-color: #f7fafc; -fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                    <Label text="Laburpena" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+                    <VBox spacing="6">
+                        <HBox spacing="8">
+                            <Label text="Stock totala:" style="-fx-text-fill: #4a5568;"/>
+                            <Pane HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblStockTotala" text="0" style="-fx-font-weight: bold;"/>
+                        </HBox>
+                        <HBox spacing="8">
+                            <Label text="Inbentario balioa:" style="-fx-text-fill: #4a5568;"/>
+                            <Pane HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblInbentarioBalioa" text="0.00€" style="-fx-font-weight: bold;"/>
+                        </HBox>
+                        <HBox spacing="8">
+                            <Label text="Stock gutxikoak:" style="-fx-text-fill: #4a5568;"/>
+                            <Pane HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblStockGutxiKop" text="0" style="-fx-font-weight: bold;"/>
+                        </HBox>
+                    </VBox>
                     <Separator/>
-                    <Button fx:id="btnKenduOsagaia" text="Kendu aukeratutakoa" maxWidth="Infinity" style="-fx-background-color: #e53e3e; -fx-text-fill: white;"/>
+                    <Label text="Stock gutxiko osagaiak" style="-fx-text-fill: #4a5568; -fx-font-weight: bold;"/>
+                    <ListView fx:id="listStockGutxi" prefHeight="90"/>
                 </VBox>
             </HBox>
         </VBox>

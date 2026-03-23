@@ -27,16 +27,12 @@ public class MahaiakController {
     private final ObservableList<Integer> pertsonaMaxAukerak = FXCollections.observableArrayList(
             2, 4, 6, 8, 10, 12, 15, 20
     );
-    private final ObservableList<String> egoeraAukerak = FXCollections.observableArrayList(
-            "Dena", "Libre", "Okupatuta"
-    );
     private final ObservableList<String> ordenatuAukerak = FXCollections.observableArrayList(
             "Zenbakia (goraka)", "Zenbakia (beheraka)", "Pertsona max (goraka)", "Pertsona max (beheraka)"
     );
 
     @FXML private Button atzeraBotoia;
     @FXML private TextField txtBilaketa;
-    @FXML private ComboBox<String> egoeraFilter;
     @FXML private ComboBox<String> ordenatuFilter;
     @FXML private Label mahaiKopuruaLabel;
 
@@ -49,7 +45,7 @@ public class MahaiakController {
     @FXML private TextField txtId;
     @FXML private TextField txtZenbakia;
     @FXML private ComboBox<Integer> cmbPertsonaMax;
-    @FXML private Label lblEgoera;
+    @FXML private TextField txtKokapena;
     @FXML private Button btnCancel;
     @FXML private Button btnSave;
     @FXML private Button btnEguneratu;
@@ -133,11 +129,6 @@ public class MahaiakController {
             }
         }
 
-        if (egoeraFilter != null) {
-            egoeraFilter.setItems(egoeraAukerak);
-            egoeraFilter.getSelectionModel().selectFirst();
-        }
-
         if (ordenatuFilter != null) {
             ordenatuFilter.setItems(ordenatuAukerak);
             ordenatuFilter.getSelectionModel().selectFirst();
@@ -157,12 +148,6 @@ public class MahaiakController {
             aplikatuFiltroak();
         });
 
-        if (egoeraFilter != null) {
-            egoeraFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
-                aplikatuFiltroak();
-            });
-        }
-
         if (ordenatuFilter != null) {
             ordenatuFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
                 aplikatuOrdenazioa();
@@ -179,15 +164,6 @@ public class MahaiakController {
             String bilaketa = txtBilaketa.getText();
             if (bilaketa != null && !bilaketa.isEmpty()) {
                 if (!String.valueOf(mahai.getZenbakia()).contains(bilaketa)) {
-                    pasa = false;
-                }
-            }
-
-            String egoera = egoeraFilter.getValue();
-            if (egoera != null && !egoera.equals("Dena")) {
-                if (egoera.equals("Libre") && mahai.isOkupatuta()) {
-                    pasa = false;
-                } else if (egoera.equals("Okupatuta") && !mahai.isOkupatuta()) {
                     pasa = false;
                 }
             }
@@ -249,12 +225,8 @@ public class MahaiakController {
 
             cmbPertsonaMax.getSelectionModel().select(Integer.valueOf(hautatuta.getPertsonaMax()));
 
-            if (hautatuta.isOkupatuta()) {
-                lblEgoera.setText("Okupatuta");
-                lblEgoera.setStyle("-fx-text-fill: #e53e3e; -fx-background-color: #fed7d7; -fx-border-color: #fc8181;");
-            } else {
-                lblEgoera.setText("Libre");
-                lblEgoera.setStyle("-fx-text-fill: #38a169; -fx-background-color: #c6f6d5; -fx-border-color: #9ae6b4;");
+            if (txtKokapena != null) {
+                txtKokapena.setText(hautatuta.getKokapena());
             }
 
             aldatuEditMode(true, hautatuta);
@@ -284,8 +256,9 @@ public class MahaiakController {
             cmbPertsonaMax.getSelectionModel().selectFirst();
         }
 
-        lblEgoera.setText("Libre");
-        lblEgoera.setStyle("-fx-text-fill: #38a169; -fx-background-color: #f0fff4; -fx-border-color: #c6f6d5;");
+        if (txtKokapena != null) {
+            txtKokapena.clear();
+        }
 
         tblMahaiak.getSelectionModel().clearSelection();
 
@@ -302,6 +275,7 @@ public class MahaiakController {
             Mahaia mahaiBerria = new Mahaia();
             mahaiBerria.setZenbakia(Integer.parseInt(txtZenbakia.getText()));
             mahaiBerria.setPertsonaMax(cmbPertsonaMax.getValue());
+            mahaiBerria.setKokapena(txtKokapena != null ? txtKokapena.getText() : "");
 
             mahaiService.createMahai(mahaiBerria)
                     .thenAccept(gordetakoMahaia -> {
@@ -315,13 +289,7 @@ public class MahaiakController {
                                                 ", PertsonaMax=" + gordetakoMahaia.getPertsonaMax()
                                 );
 
-                                mahaiakList.add(new MahaiaTableModel(
-                                        gordetakoMahaia.getId(),
-                                        gordetakoMahaia.getZenbakia(),
-                                        gordetakoMahaia.getPertsonaMax(),
-                                        false,
-                                        gordetakoMahaia.getKokapena()
-                                ));
+                                kargatuMahaiak();
                                 garbituFormularioa();
                                 erakutsiMezua("Arrakasta", "Mahaia ondo gorde da!", "SUCCESS");
                                 eguneratuEstatistikak();
@@ -355,6 +323,7 @@ public class MahaiakController {
             mahaiEguneratu.setId(mahaiEditatzen.getId());
             mahaiEguneratu.setZenbakia(Integer.parseInt(txtZenbakia.getText()));
             mahaiEguneratu.setPertsonaMax(cmbPertsonaMax.getValue());
+            mahaiEguneratu.setKokapena(txtKokapena != null ? txtKokapena.getText() : "");
 
             mahaiService.updateMahai(mahaiEditatzen.getId(), mahaiEguneratu)
                     .thenAccept(arrakasta -> {
@@ -371,6 +340,9 @@ public class MahaiakController {
 
                                 mahaiEditatzen.setZenbakia(Integer.parseInt(txtZenbakia.getText()));
                                 mahaiEditatzen.setPertsonaMax(cmbPertsonaMax.getValue());
+                                if (txtKokapena != null) {
+                                    mahaiEditatzen.setKokapena(txtKokapena.getText());
+                                }
 
                                 int index = mahaiakList.indexOf(mahaiEditatzen);
                                 if (index >= 0) {
@@ -672,5 +644,6 @@ public class MahaiakController {
         public String getEgoera() { return egoera.get(); }
 
         public String getKokapena() { return kokapena.get(); }
+        public void setKokapena(String value) { this.kokapena.set(value != null ? value : ""); }
     }
 }

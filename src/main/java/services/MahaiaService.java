@@ -47,7 +47,15 @@ public class MahaiaService {
                 HttpResponse<String> response = ApiClient.post("/api/mahaiak", jsonBody);
 
                 if (response.statusCode() == 201 || response.statusCode() == 200) {
-                    return gson.fromJson(response.body(), Mahaia.class);
+                    String body = response.body();
+                    if (body != null && !body.trim().isEmpty() && body.trim().startsWith("{")) {
+                        try {
+                            return gson.fromJson(body, Mahaia.class);
+                        } catch (Exception parseEx) {
+                            System.err.println("WARN: Ezin izan da JSON erantzuna parseatu: " + parseEx.getMessage());
+                        }
+                    }
+                    return mahai;
                 }
                 return null;
             } catch (Exception e) {

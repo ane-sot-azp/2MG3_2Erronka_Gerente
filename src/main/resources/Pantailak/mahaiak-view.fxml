@@ -93,15 +93,10 @@
             <HBox spacing="10" alignment="CENTER_LEFT"
                   style="-fx-background-color: #f7fafc; -fx-padding: 10 20; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
 
-                <Label text="Filtratu:" style="-fx-text-fill: #4a5568; -fx-font-weight: bold;"/>
-
-                <ComboBox fx:id="egoeraFilter"
-                          prefWidth="150"
-                          promptText="Egoera"
-                          style="-fx-background-radius: 5;"/>
+                <Label text="Ordenatu:" style="-fx-text-fill: #4a5568; -fx-font-weight: bold;"/>
 
                 <ComboBox fx:id="ordenatuFilter"
-                          prefWidth="150"
+                          prefWidth="250"
                           promptText="Ordenatu"
                           style="-fx-background-radius: 5;"/>
 
@@ -179,9 +174,10 @@
                     </VBox>
 
                     <VBox spacing="5">
-                        <Label text="Egoera" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
-                        <Label fx:id="lblEgoera" text="Libre"
-                               style="-fx-font-size: 14; -fx-text-fill: #38a169; -fx-font-weight: bold; -fx-padding: 8; -fx-background-color: #f0fff4; -fx-background-radius: 5; -fx-border-color: #c6f6d5; -fx-border-width: 1; -fx-border-radius: 5;"/>
+                        <Label text="Kokapena" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                        <TextField fx:id="txtKokapena"
+                                   promptText="Adibidez: Terraza, Barrualdea, Leiho ondoan..."
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
                     </VBox>
                 </VBox>
 
