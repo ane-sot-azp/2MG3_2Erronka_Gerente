@@ -4,6 +4,9 @@ import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class ActionLogger {
 
@@ -14,37 +17,54 @@ public class ActionLogger {
     private static final DateTimeFormatter FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static synchronized void log(
+    private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(
+            1,
+            1,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<>(200),
+            r -> {
+                Thread t = new Thread(r, "action-logger");
+                t.setDaemon(true);
+                return t;
+            },
+            new ThreadPoolExecutor.DiscardPolicy()
+    );
+
+    public static void log(
             String erabiltzailea,
             String eragiketa,
             String taula,
             String deskripzioa
     ) {
-        try {
-            String rutaRed = "\\\\" + SERVER_IP + "\\" + SERVER_SHARE;
-            Path logPath = Paths.get(rutaRed, LOG_FILE);
+        if (EXECUTOR.getQueue().remainingCapacity() == 0) return;
+        EXECUTOR.execute(() -> {
+            try {
+                String rutaRed = "\\\\" + SERVER_IP + "\\" + SERVER_SHARE;
+                Path logPath = Paths.get(rutaRed, LOG_FILE);
 
-            Files.createDirectories(logPath.getParent());
+                Files.createDirectories(logPath.getParent());
 
-            String linea = String.format(
-                    "[%s] ERABILTZAILEA=%s | ERAGIKETA=%s | TAULA=%s | %s%n",
-                    LocalDateTime.now().format(FORMAT),
-                    erabiltzailea,
-                    eragiketa,
-                    taula,
-                    deskripzioa
-            );
+                String linea = String.format(
+                        "[%s] ERABILTZAILEA=%s | ERAGIKETA=%s | TAULA=%s | %s%n",
+                        LocalDateTime.now().format(FORMAT),
+                        erabiltzailea,
+                        eragiketa,
+                        taula,
+                        deskripzioa
+                );
 
-            Files.write(
-                    logPath,
-                    linea.getBytes(),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.APPEND
-            );
+                Files.write(
+                        logPath,
+                        linea.getBytes(),
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.APPEND
+                );
 
-        } catch (IOException e) {
-            System.err.println("Ezin izan da Log-a idatzi: " + e.getMessage());
-        }
+            } catch (IOException e) {
+                System.err.println("Ezin izan da Log-a idatzi: " + e.getMessage());
+            }
+        });
     }
 }
 

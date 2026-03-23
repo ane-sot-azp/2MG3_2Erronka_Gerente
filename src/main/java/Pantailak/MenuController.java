@@ -50,6 +50,11 @@ public class MenuController {
     }
 
     @FXML
+    private void openChat(ActionEvent event) {
+        StageManager.openChatWindow();
+    }
+
+    @FXML
     private void onLangileakClick(ActionEvent event) {
         try {
             StageManager.switchStage(
@@ -59,6 +64,9 @@ public class MenuController {
                     true
             );
         } catch (IOException e) {
+            erroreaErakutsi("Errorea langileak kargatzean: " + e.getMessage());
+            e.printStackTrace();
+        } catch (RuntimeException e) {
             erroreaErakutsi("Errorea langileak kargatzean: " + e.getMessage());
             e.printStackTrace();
         }
@@ -105,21 +113,6 @@ public class MenuController {
             );
         } catch (IOException e) {
             erroreaErakutsi("Errorea hornitzaileak kargatzean: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void onPlaterakClick(ActionEvent event) {
-        try {
-            StageManager.switchStage(
-                    getCurrentStage(event),
-                    "platerak-view.fxml",
-                    "Platerak",
-                    true
-            );
-        } catch (IOException e) {
-            erroreaErakutsi("Errorea platerak kargatzean: " + e.getMessage());
             e.printStackTrace();
         }
     }

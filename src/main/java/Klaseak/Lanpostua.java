@@ -1,7 +1,11 @@
 package Klaseak;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Lanpostua {
     private int id;
+
+    @SerializedName(value = "lanpostu_izena", alternate = { "izena", "lanpostua_izena", "lanpostuaIzena" })
     private String izena;
 
     public Lanpostua(int id, String izena) {
@@ -21,7 +25,7 @@ public class Lanpostua {
     }
 
     public String getIzena() {
-        return izena;
+        return izena != null ? izena : "";
     }
 
     @Override

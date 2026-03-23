@@ -59,6 +59,7 @@ public class StageManager {
     private static PrintWriter chatWriter = null;
     private static boolean isChatServerConnected = false;
     private static boolean isFirstConnection = true;
+    private static boolean useFloatingChatButton = true;
 
     
     private static boolean isDragging = false;
@@ -139,7 +140,7 @@ public class StageManager {
         currentStage.close();
         newStage.show();
 
-        if (erabiltzaileIzena != null) {
+        if (useFloatingChatButton && erabiltzaileIzena != null) {
             updateFloatingButtonPosition();
         }
     }
@@ -173,6 +174,7 @@ public class StageManager {
 
     public static void showFloatingChatButton(String username) {
         erabiltzaileIzena = username;
+        useFloatingChatButton = true;
 
         Platform.runLater(() -> {
             try {
@@ -199,7 +201,7 @@ public class StageManager {
     }
 
     public static void showFloatingChatButtonIfHidden() {
-        if (floatingStage != null && !floatingStage.isShowing()) {
+        if (useFloatingChatButton && floatingStage != null && !floatingStage.isShowing()) {
             Platform.runLater(() -> {
                 floatingStage.show();
                 updateFloatingButtonPosition();
@@ -207,6 +209,14 @@ public class StageManager {
         }
     }
 
+    public static void enableHeaderChat(String username) {
+        erabiltzaileIzena = username;
+        useFloatingChatButton = false;
+        Platform.runLater(() -> {
+            hideFloatingChatButton();
+            connectToChatServer();
+        });
+    }
     private static void updateFloatingButtonPosition() {
         if (floatingStage != null && floatingStage.isShowing()) {
             Platform.runLater(() -> {
@@ -740,7 +750,9 @@ public class StageManager {
                         try {
                             Thread.sleep(100);
                             Platform.runLater(() -> {
-                                showFloatingChatButtonIfHidden();
+                                if (useFloatingChatButton) {
+                                    showFloatingChatButtonIfHidden();
+                                }
                             });
                         } catch (InterruptedException ex) {
                             Thread.currentThread().interrupt();
@@ -759,7 +771,9 @@ public class StageManager {
             } catch (Exception e) {
                 System.err.println("Errorea txata irekitzen: " + e.getMessage());
                 e.printStackTrace();
-                showFloatingChatButtonIfHidden();
+                if (useFloatingChatButton) {
+                    showFloatingChatButtonIfHidden();
+                }
             }
         });
     }

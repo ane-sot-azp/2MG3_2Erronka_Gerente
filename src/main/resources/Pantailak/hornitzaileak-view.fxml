@@ -20,8 +20,10 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 
-<BorderPane style="-fx-background-color: #f8fafc;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Pantailak.HornitzaileakController">
+<BorderPane style="-fx-background-color: #f8fafc;" xmlns="http://javafx.com/javafx/21.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Pantailak.HornitzaileakController">
     <top>
         <VBox spacing="0">
             <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: white; -fx-padding: 15 20; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
@@ -39,6 +41,24 @@
                     <Button fx:id="refreshButton" style="-fx-background-color: #4a5568; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 8 15;" text="🔄 Freskatu">
                         <tooltip>
                             <Tooltip text="Datuak freskatu" />
+                        </tooltip>
+                    </Button>
+
+                    <Button fx:id="btnChat"
+                            onAction="#openChat"
+                            style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 6;">
+                        <graphic>
+                            <ImageView fitWidth="26"
+                                       fitHeight="26"
+                                       preserveRatio="true"
+                                       pickOnBounds="true">
+                                <image>
+                                    <Image url="@../icons/chat_icon.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Txata ireki"/>
                         </tooltip>
                     </Button>
                 </HBox>
@@ -62,175 +82,56 @@
         </VBox>
     </top>
     <center>
-        <SplitPane dividerPositions="0.5" style="-fx-padding: 15;">
+        <SplitPane dividerPositions="0.7">
             <VBox spacing="10">
-                <TableView fx:id="tableHornitzaileak" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tableHornitzaileak" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colHornitzaileId" prefWidth="50" minWidth="50" text="ID">
-                            <style>
-                                <String fx:value="-fx-alignment: CENTER;" />
-                            </style>
-                        </TableColumn>
-                        <TableColumn fx:id="colHornitzaileIzena" prefWidth="150" minWidth="120" text="Izena" />
-                        <TableColumn fx:id="colHornitzaileCif" prefWidth="100" minWidth="80" text="CIF">
-                            <style>
-                                <String fx:value="-fx-alignment: CENTER;" />
-                            </style>
-                        </TableColumn>
-                        <TableColumn fx:id="colHornitzaileSektorea" prefWidth="120" minWidth="100" text="Sektorea" />
-                        <TableColumn fx:id="colHornitzaileHelbidea" prefWidth="200" minWidth="150" text="Helbidea" />
-                        <TableColumn fx:id="colHornitzaileTelefonoa" prefWidth="110" minWidth="90" text="Telefonoa">
-                            <style>
-                                <String fx:value="-fx-alignment: CENTER;" />
-                            </style>
-                        </TableColumn>
-                        <TableColumn fx:id="colHornitzaileEmail" prefWidth="180" minWidth="150" text="Email" />
+                        <TableColumn fx:id="colHornitzaileId" text="ID" prefWidth="50"/>
+                        <TableColumn fx:id="colHornitzaileIzena" text="Izena" prefWidth="150"/>
+                        <TableColumn fx:id="colHornitzaileKontaktua" text="Kontaktua" prefWidth="150"/>
+                        <TableColumn fx:id="colHornitzaileHelbidea" text="Helbidea" prefWidth="200"/>
                     </columns>
-                    <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                    </columnResizePolicy>
                 </TableView>
-                <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 5;">
-                    <Label style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2d3748;" text="Hornitzailearen datuak" />
-                    <GridPane hgap="15" vgap="10">
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="50" />
-                            <ColumnConstraints percentWidth="50" />
-                        </columnConstraints>
-                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4a5568;" text="Izena *" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <TextField fx:id="txtIzena" style="-fx-background-radius: 5; -fx-padding: 8;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4a5568;" text="CIF *" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <TextField fx:id="txtCif" style="-fx-background-radius: 5; -fx-padding: 8;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4a5568;" text="Sektorea" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <TextField fx:id="txtSektorea" style="-fx-background-radius: 5; -fx-padding: 8;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4a5568;" text="Telefonoa *" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                        <TextField fx:id="txtTelefonoa" style="-fx-background-radius: 5; -fx-padding: 8;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4a5568;" text="Email *" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                        <TextField fx:id="txtEmail" style="-fx-background-radius: 5; -fx-padding: 8;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4a5568;" text="Helbidea" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                        <TextField fx:id="txtHelbidea" style="-fx-background-radius: 5; -fx-padding: 8;" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                        <rowConstraints>
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                        </rowConstraints>
-                    </GridPane>
-                    <HBox alignment="CENTER_RIGHT" spacing="10">
-                        <Button fx:id="btnCancelHornitzailea" style="-fx-background-color: #a0aec0; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 8 20;" text="Utzi" />
-                        <Button fx:id="btnSaveHornitzailea" style="-fx-background-color: #3182ce; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 8 20;" text="Gorde" />
-                    </HBox>
-                </VBox>
             </VBox>
-            <VBox spacing="10">
-                <VBox spacing="10" VBox.vgrow="ALWAYS">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2d3748;" text="Hornitzailearen Osagaiak" />
-                        <Pane HBox.hgrow="ALWAYS" />
-                        <Label fx:id="osagaiKopuruaLabel" style="-fx-text-fill: #718096; -fx-font-size: 14;" text="0 osagai" />
-                    </HBox>
-                    <TableView fx:id="tableHornitzailearenOsagaiak" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
-                        <columns>
-                            <TableColumn fx:id="colOsagaiIzena" prefWidth="200" minWidth="150" text="Osagaia" />
-                            <TableColumn fx:id="colOsagaiPrezioa" prefWidth="100" minWidth="80" text="Prezioa (€)">
-                                <style>
-                                    <String fx:value="-fx-alignment: CENTER_RIGHT;" />
-                                </style>
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="azkenPrezioa" />
-                                </cellValueFactory>
-                            </TableColumn>
-                            <TableColumn fx:id="colOsagaiStock" prefWidth="80" minWidth="60" text="Stock">
-                                <style>
-                                    <String fx:value="-fx-alignment: CENTER;" />
-                                </style>
-                            </TableColumn>
-                            <TableColumn fx:id="colOsagaiEskatu" prefWidth="80" minWidth="60" text="Eskatu">
-                                <style>
-                                    <String fx:value="-fx-alignment: CENTER;" />
-                                </style>
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="eskatu" />
-                                </cellValueFactory>
-                            </TableColumn>
-                        </columns>
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                        </columnResizePolicy>
-                    </TableView>
+
+            <VBox spacing="15" prefWidth="300" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #e2e8f0; -fx-border-width: 1;">
+                <Label text="Hornitzailearen datuak" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                <VBox spacing="5">
+                    <Label text="Izena:"/>
+                    <TextField fx:id="txtIzena"/>
+                    <Label text="Kontaktua:"/>
+                    <TextField fx:id="txtKontaktua"/>
+                    <Label text="Helbidea:"/>
+                    <TextField fx:id="txtHelbidea"/>
                 </VBox>
-                <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 5;">
-                    <Label style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2d3748;" text="Osagaiak Kudeatu" />
-                    <GridPane hgap="10" vgap="15">
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="70" />
-                            <ColumnConstraints percentWidth="30" />
-                        </columnConstraints>
-                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                            <Label style="-fx-font-weight: bold; -fx-text-fill: #4a5568;" text="Gehitu osagai berria:" />
-                            <HBox alignment="CENTER_LEFT" spacing="10">
-                                <ComboBox fx:id="comboOsagaiak" prefWidth="300" promptText="Aukeratu osagaia..." style="-fx-background-radius: 5; -fx-padding: 8;" />
-                            </HBox>
-                        </VBox>
-                        <Button fx:id="btnGehituOsagaia" disable="true" style="-fx-background-color: #38a169; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 10 15;" text="Gehitu" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <tooltip>
-                                <Tooltip text="Osagaia hornitzaileari gehitu" />
-                            </tooltip>
-                        </Button>
-                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                            <Label style="-fx-font-weight: bold; -fx-text-fill: #4a5568;" text="Kendu aukeratutako osagaia:" />
-                            <Label style="-fx-text-fill: #718096;" text="Aukeratu osagaia goiko taulan" />
-                        </VBox>
-                        <Button fx:id="btnKenduOsagaia" disable="true" style="-fx-background-color: #e53e3e; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 10 15;" text="Kendu" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <tooltip>
-                                <Tooltip text="Osagaia hornitzaileatik kendu" />
-                            </tooltip>
-                        </Button>
-                        <rowConstraints>
-                            <RowConstraints />
-                            <RowConstraints />
-                        </rowConstraints>
-                    </GridPane>
-                    <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 5; -fx-margin-top: 15;">
-                        <Label style="-fx-font-weight: bold; -fx-text-fill: #4a5568;" text="Informazioa" />
-                        <VBox spacing="5">
-                            <Label style="-fx-text-fill: #718096;" text="• Aukeratu hornitzaile bat ezkerreko taulan" />
-                            <Label style="-fx-text-fill: #718096;" text="• Osagaiak automatikoki kargatuko dira" />
-                            <Label style="-fx-text-fill: #718096;" text="• Erabili desplegablea osagai berria gehitzeko" />
-                            <Label style="-fx-text-fill: #718096;" text="• Aukeratu osagaia taulan eta sakatu 'Kendu'" />
-                        </VBox>
-                    </VBox>
-                </VBox>
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button fx:id="btnCancelHornitzailea" text="Utzi" style="-fx-background-color: #a0aec0; -fx-text-fill: white;"/>
+                    <Button fx:id="btnSaveHornitzailea" text="Gorde" style="-fx-background-color: #3182ce; -fx-text-fill: white;"/>
+                </HBox>
             </VBox>
         </SplitPane>
     </center>
+
     <bottom>
-        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 15 20; -fx-border-color: #e2e8f0; -fx-border-width: 1 0 0 0;">
-            <VBox spacing="5">
-                <Label style="-fx-text-fill: #718096; -fx-font-size: 12;" text="Hornitzaile kopurua" />
-                <Label fx:id="totalHornitzaileakLabel" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2d3748;" text="0" />
-            </VBox>
-            <VBox spacing="5">
-                <Label style="-fx-text-fill: #718096; -fx-font-size: 12;" text="Hornitzaile berriak (7 egun)" />
-                <Label fx:id="hornitzaileBerriakLabel" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #38a169;" text="0" />
-            </VBox>
-            <Separator orientation="VERTICAL" prefHeight="30" />
-            <VBox spacing="5">
-                <Label style="-fx-text-fill: #718096; -fx-font-size: 12;" text="Osagai Gehienak" />
-                <Label fx:id="osagaiGehienLabel" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #3182ce;" text="-" />
-            </VBox>
-            <VBox spacing="5">
-                <Label style="-fx-text-fill: #718096; -fx-font-size: 12;" text="Osagai Gutxienak" />
-                <Label fx:id="osagaiGutxienLabel" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #ed8936;" text="-" />
-            </VBox>
-            <Pane HBox.hgrow="ALWAYS" />
-            <VBox alignment="CENTER_RIGHT" spacing="5">
-                <Label fx:id="dataLabel" style="-fx-text-fill: #718096; -fx-font-size: 12;" text="" />
-                <Label fx:id="orduaLabel" style="-fx-text-fill: #718096; -fx-font-size: 12;" text="" />
-            </VBox>
-        </HBox>
+        <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1 0 0 0;">
+            <Label text="Hornitzaile honen osagaiak" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+            <HBox spacing="15">
+                <TableView fx:id="tableHornitzailearenOsagaiak" prefHeight="200" HBox.hgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colOsagaiIzena" text="Osagaia" prefWidth="200"/>
+                        <TableColumn fx:id="colOsagaiPrezioa" text="Prezioa" prefWidth="100"/>
+                        <TableColumn fx:id="colOsagaiStock" text="Stock" prefWidth="100"/>
+                    </columns>
+                </TableView>
+                <VBox spacing="10" prefWidth="250">
+                    <Label text="Osagaia gehitu:"/>
+                    <ComboBox fx:id="comboOsagaiak" maxWidth="Infinity" promptText="Hautatu osagaia..."/>
+                    <Button fx:id="btnGehituOsagaia" text="Gehitu osagaia" maxWidth="Infinity" style="-fx-background-color: #38a169; -fx-text-fill: white;"/>
+                    <Separator/>
+                    <Button fx:id="btnKenduOsagaia" text="Kendu aukeratutakoa" maxWidth="Infinity" style="-fx-background-color: #e53e3e; -fx-text-fill: white;"/>
+                </VBox>
+            </HBox>
+        </VBox>
     </bottom>
     <padding>
         <Insets bottom="5" left="5" right="5" top="5" />

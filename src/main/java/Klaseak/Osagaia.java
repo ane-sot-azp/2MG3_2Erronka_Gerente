@@ -1,28 +1,23 @@
 package Klaseak;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Osagaia {
     private int id;
     private String izena;
-    private double azkenPrezioa;
+    private double prezioa;
     private int stock;
-    private int gutxienekoStock;
-    private boolean eskatu;
-    private List<Hornitzailea> hornitzaileak;
+    private int hornitzaileakId;
+    private int gutxienekoStock = 10;
+    private boolean eskatu = false;
 
     public Osagaia() {
-        this.hornitzaileak = new ArrayList<>();
-        this.eskatu = false;
     }
 
-    public Osagaia(String izena, double azkenPrezioa, int stock, int gutxienekoStock) {
-        this();
+    public Osagaia(int id, String izena, double prezioa, int stock, int hornitzaileakId) {
+        this.id = id;
         this.izena = izena;
-        this.azkenPrezioa = azkenPrezioa;
+        this.prezioa = prezioa;
         this.stock = stock;
-        this.gutxienekoStock = gutxienekoStock;
+        this.hornitzaileakId = hornitzaileakId;
     }
 
     public int getId() { return id; }
@@ -31,8 +26,11 @@ public class Osagaia {
     public String getIzena() { return izena; }
     public void setIzena(String izena) { this.izena = izena; }
 
-    public double getAzkenPrezioa() { return azkenPrezioa; }
-    public void setAzkenPrezioa(double azkenPrezioa) { this.azkenPrezioa = azkenPrezioa; }
+    public double getPrezioa() { return prezioa; }
+    public void setPrezioa(double prezioa) { this.prezioa = prezioa; }
+
+    public double getAzkenPrezioa() { return prezioa; }
+    public void setAzkenPrezioa(double azkenPrezioa) { this.prezioa = azkenPrezioa; }
 
     public int getStock() { return stock; }
     public void setStock(int stock) { this.stock = stock; }
@@ -43,25 +41,19 @@ public class Osagaia {
     public boolean isEskatu() { return eskatu; }
     public void setEskatu(boolean eskatu) { this.eskatu = eskatu; }
 
-    public List<Hornitzailea> getHornitzaileak() { return hornitzaileak; }
-    public void setHornitzaileak(List<Hornitzailea> hornitzaileak) {
-        this.hornitzaileak = hornitzaileak;
-    }
-
-    public void addHornitzailea(Hornitzailea hornitzailea) {
-        this.hornitzaileak.add(hornitzailea);
-    }
+    public int getHornitzaileakId() { return hornitzaileakId; }
+    public void setHornitzaileakId(int hornitzaileakId) { this.hornitzaileakId = hornitzaileakId; }
 
     public boolean erosiBeharDa() {
         return stock <= gutxienekoStock;
     }
 
     public double stockBalioaLortu() {
-        return stock * azkenPrezioa;
+        return stock * getAzkenPrezioa();
     }
 
     @Override
     public String toString() {
-        return izena + " (Stock: " + stock + ", Prezioa: " + azkenPrezioa + "€)";
+        return izena + " (Stock: " + stock + ", Prezioa: " + getAzkenPrezioa() + "€)";
     }
 }

@@ -44,8 +44,7 @@ public class MahaiakController {
     @FXML private TableColumn<MahaiaTableModel, Integer> colId;
     @FXML private TableColumn<MahaiaTableModel, Integer> colZenbakia;
     @FXML private TableColumn<MahaiaTableModel, Integer> colPertsonaMax;
-    @FXML private TableColumn<MahaiaTableModel, String> colEgoera;
-    @FXML private TableColumn<MahaiaTableModel, String> colEkintzak;
+    @FXML private TableColumn<MahaiaTableModel, String> colKokapena;
 
     @FXML private TextField txtId;
     @FXML private TextField txtZenbakia;
@@ -92,7 +91,7 @@ public class MahaiakController {
             colId.setCellValueFactory(new PropertyValueFactory<>("id"));
             colZenbakia.setCellValueFactory(new PropertyValueFactory<>("zenbakia"));
             colPertsonaMax.setCellValueFactory(new PropertyValueFactory<>("pertsonaMax"));
-            colEgoera.setCellValueFactory(new PropertyValueFactory<>("egoera"));
+            colKokapena.setCellValueFactory(new PropertyValueFactory<>("kokapena"));
 
             tblMahaiak.setItems(mahaiakList);
             System.out.println("INFO: Taula nagusia konfiguratuta");
@@ -227,71 +226,16 @@ public class MahaiakController {
     }
 
     @FXML
-    public void kargatuMahaiak() {
-        System.out.println("DEBUG: kargatuMahaiak() dei egiten");
-
-        mahaiService.getAllMahai()
-                .thenAccept(mahaiak -> {
-                    Platform.runLater(() -> {
-                        System.out.println("DEBUG: API-tik erantzuna jaso da");
-                        System.out.println("DEBUG: mahaiak null al da? " + (mahaiak == null));
-                        System.out.println("DEBUG: Jasotako mahai kopurua: " + (mahaiak != null ? mahaiak.size() : 0));
-
-                        mahaiakList.clear();
-                        if (mahaiak != null && !mahaiak.isEmpty()) {
-                            int kontadorea = 0;
-                            for (Mahaia mahai : mahaiak) {
-                                kontadorea++;
-                                System.out.println("DEBUG Mahai " + kontadorea + ":");
-                                System.out.println("  - ID: " + mahai.getId());
-                                System.out.println("  - Zenbakia: " + mahai.getZenbakia());
-                                System.out.println("  - PertsonaMax: " + mahai.getPertsonaMax());
-                                System.out.println("  - Occupied: " + mahai.isOccupied());
-
-                                MahaiaTableModel model = new MahaiaTableModel(
-                                        mahai.getId(),
-                                        mahai.getZenbakia(),
-                                        mahai.getPertsonaMax(),
-                                        mahai.isOccupied()
-                                );
-
-                                System.out.println("  - Modeloa - ID: " + model.getId() +
-                                        ", Zenbakia: " + model.getZenbakia() +
-                                        ", Okupatuta: " + model.isOkupatuta());
-
-                                mahaiakList.add(model);
-                            }
-                        } else {
-                            System.out.println("DEBUG: Ez da mahairik jaso edo zerrenda hutsik dago");
-                        }
-
-                        System.out.println("DEBUG: Kargatu ondoren mahaiakList tamaina: " + mahaiakList.size());
-
-                        System.out.println("DEBUG: tblMahaiak null al da? " + (tblMahaiak == null));
-
-                        if (tblMahaiak != null) {
-                            tblMahaiak.refresh();
-                            System.out.println("DEBUG: Taula freskatu da");
-
-                            System.out.println("DEBUG: Zutabe kopurua: " + tblMahaiak.getColumns().size());
-                            for (TableColumn col : tblMahaiak.getColumns()) {
-                                System.out.println("DEBUG Zutabea: " + col.getText());
-                            }
-                        }
-
-                        aplikatuFiltroak();
-                        aplikatuOrdenazioa();
-                        System.out.println("INFO: " + mahaiakList.size() + " mahai kargatu dira");
-                    });
-                })
-                .exceptionally(ex -> {
-                    System.err.println("ERROR kargatuMahaiak-en: " + ex.getMessage());
-                    ex.printStackTrace();
-                    Platform.runLater(() -> {
-                        erakutsiMezua("Errorea", "Ezin izan dira mahaiak kargatu: " + ex.getMessage(), "ERROR");
-                    });
-                    return null;
-                });
+    private void kargatuMahaiak() {
+        mahaiService.getAllMahai().thenAccept(mahaiak -> {
+            Platform.runLater(() -> {
+                mahaiakList.clear();
+                for (Mahaia m : mahaiak) {
+                    mahaiakList.add(new MahaiaTableModel(m));
+                }
+                mahaiKopuruaLabel.setText(mahaiakList.size() + " mahai");
+            });
+        });
     }
 
     @FXML
@@ -375,7 +319,8 @@ public class MahaiakController {
                                         gordetakoMahaia.getId(),
                                         gordetakoMahaia.getZenbakia(),
                                         gordetakoMahaia.getPertsonaMax(),
-                                        false
+                                        false,
+                                        gordetakoMahaia.getKokapena()
                                 ));
                                 garbituFormularioa();
                                 erakutsiMezua("Arrakasta", "Mahaia ondo gorde da!", "SUCCESS");
@@ -675,42 +620,57 @@ public class MahaiakController {
         alert.setTitle(titulua);
         alert.setHeaderText(null);
         alert.setContentText(mezua);
-        alert.showAndWait();
+        if (alertType == Alert.AlertType.INFORMATION) {
+            alert.show();
+            javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(1.5));
+            delay.setOnFinished(e -> alert.close());
+            delay.play();
+        } else {
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void openChat(javafx.event.ActionEvent event) {
+        StageManager.openChatWindow();
     }
 
     public static class MahaiaTableModel {
         private final SimpleIntegerProperty id;
         private final SimpleIntegerProperty zenbakia;
         private final SimpleIntegerProperty pertsonaMax;
-        private final SimpleStringProperty egoera;
         private final SimpleBooleanProperty okupatuta;
+        private final SimpleStringProperty egoera;
+        private final SimpleStringProperty kokapena;
 
-        public MahaiaTableModel(int id, int zenbakia, int pertsonaMax, boolean okupatuta) {
+        public MahaiaTableModel(Mahaia m) {
+            this(m.getId(), m.getZenbakia(), m.getPertsonaMax(), m.isOccupied(), m.getKokapena());
+        }
+
+        public MahaiaTableModel(int id, int zenbakia, int pertsonaMax, boolean okupatuta, String kokapena) {
             this.id = new SimpleIntegerProperty(id);
             this.zenbakia = new SimpleIntegerProperty(zenbakia);
             this.pertsonaMax = new SimpleIntegerProperty(pertsonaMax);
             this.okupatuta = new SimpleBooleanProperty(okupatuta);
             this.egoera = new SimpleStringProperty(okupatuta ? "Okupatuta" : "Libre");
+            this.kokapena = new SimpleStringProperty(kokapena != null ? kokapena : "");
         }
 
         public int getId() { return id.get(); }
         public int getZenbakia() { return zenbakia.get(); }
-        public int getPertsonaMax() { return pertsonaMax.get(); }
-        public String getEgoera() { return egoera.get(); }
-        public boolean isOkupatuta() { return okupatuta.get(); }
+        public void setZenbakia(int value) { this.zenbakia.set(value); }
 
-        public void setId(int id) { this.id.set(id); }
-        public void setZenbakia(int zenbakia) { this.zenbakia.set(zenbakia); }
-        public void setPertsonaMax(int pertsonaMax) { this.pertsonaMax.set(pertsonaMax); }
-        public void setOkupatuta(boolean okupatuta) {
-            this.okupatuta.set(okupatuta);
-            this.egoera.set(okupatuta ? "Okupatuta" : "Libre");
+        public int getPertsonaMax() { return pertsonaMax.get(); }
+        public void setPertsonaMax(int value) { this.pertsonaMax.set(value); }
+
+        public boolean isOkupatuta() { return okupatuta.get(); }
+        public void setOkupatuta(boolean value) {
+            this.okupatuta.set(value);
+            this.egoera.set(value ? "Okupatuta" : "Libre");
         }
 
-        public SimpleIntegerProperty idProperty() { return id; }
-        public SimpleIntegerProperty zenbakiaProperty() { return zenbakia; }
-        public SimpleIntegerProperty pertsonaMaxProperty() { return pertsonaMax; }
-        public SimpleStringProperty egoeraProperty() { return egoera; }
-        public SimpleBooleanProperty okupatutaProperty() { return okupatuta; }
+        public String getEgoera() { return egoera.get(); }
+
+        public String getKokapena() { return kokapena.get(); }
     }
 }

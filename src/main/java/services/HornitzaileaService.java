@@ -2,30 +2,22 @@ package services;
 
 import Klaseak.Hornitzailea;
 import Klaseak.Osagaia;
+import DB.ApiClient;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.URI;
 import java.lang.reflect.Type;
-import java.time.Duration;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class HornitzaileaService {
-    private static final String API_URL = "http://192.168.2.101:5000/api/Hornitzaileak";
-    private final HttpClient client;
     private final Gson gson;
     private static final Logger LOGGER = Logger.getLogger(HornitzaileaService.class.getName());
 
     public HornitzaileaService() {
-        this.client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build();
         this.gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
                 .create();
@@ -34,14 +26,7 @@ public class HornitzaileaService {
     // Hornitzaile guztiak lortu
     public List<Hornitzailea> getHornitzaileak() {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL))
-                    .timeout(Duration.ofSeconds(15))
-                    .header("Accept", "application/json")
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = ApiClient.get("/api/hornitzaileak");
 
             LOGGER.log(Level.INFO, "GET Hornitzaileak - Status: {0}", response.statusCode());
 
@@ -67,14 +52,7 @@ public class HornitzaileaService {
         }
 
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL + "/" + id))
-                    .timeout(Duration.ofSeconds(15))
-                    .header("Accept", "application/json")
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = ApiClient.get("/api/hornitzaileak/" + id);
 
             LOGGER.log(Level.INFO, "GET Hornitzailea/{0} - Status: {1}", new Object[]{id, response.statusCode()});
 
@@ -99,14 +77,7 @@ public class HornitzaileaService {
         }
 
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL + "/search/" + izena))
-                    .timeout(Duration.ofSeconds(15))
-                    .header("Accept", "application/json")
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = ApiClient.get("/api/hornitzaileak/search/" + izena);
 
             LOGGER.log(Level.INFO, "Search Hornitzailea - Status: {0}", response.statusCode());
 
@@ -129,21 +100,12 @@ public class HornitzaileaService {
 
         try {
             String json = gson.toJson(hornitzailea);
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL))
-                    .timeout(Duration.ofSeconds(15))
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = ApiClient.post("/api/hornitzaileak", json);
 
             LOGGER.log(Level.INFO, "POST Hornitzailea - Status: {0}", response.statusCode());
             LOGGER.log(Level.INFO, "Response: {0}", response.body());
 
-            return response.statusCode() == 201;
+            return response.statusCode() == 201 || response.statusCode() == 200;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Errorea hornitzailea sortzean: " + e.getMessage(), e);
             return false;
@@ -159,15 +121,7 @@ public class HornitzaileaService {
 
         try {
             String json = gson.toJson(hornitzailea);
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL + "/" + hornitzailea.getId()))
-                    .timeout(Duration.ofSeconds(15))
-                    .header("Content-Type", "application/json")
-                    .PUT(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = ApiClient.put("/api/hornitzaileak/" + hornitzailea.getId(), json);
 
             LOGGER.log(Level.INFO, "PUT Hornitzailea/{0} - Status: {1}",
                     new Object[]{hornitzailea.getId(), response.statusCode()});
@@ -187,18 +141,12 @@ public class HornitzaileaService {
         }
 
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL + "/" + id))
-                    .timeout(Duration.ofSeconds(15))
-                    .DELETE()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = ApiClient.delete("/api/hornitzaileak/" + id);
 
             LOGGER.log(Level.INFO, "DELETE Hornitzailea/{0} - Status: {1}",
                     new Object[]{id, response.statusCode()});
 
-            return response.statusCode() == 204;
+            return response.statusCode() == 204 || response.statusCode() == 200;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Errorea hornitzailea ezabatzean: " + e.getMessage(), e);
             return false;
@@ -213,14 +161,7 @@ public class HornitzaileaService {
         }
 
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL + "/" + hornitzaileaId + "/osagaiak"))
-                    .timeout(Duration.ofSeconds(15))
-                    .header("Accept", "application/json")
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = ApiClient.get("/api/hornitzaileak/" + hornitzaileaId + "/osagaiak");
 
             LOGGER.log(Level.INFO, "GET Hornitzailea/{0}/osagaiak - Status: {1}",
                     new Object[]{hornitzaileaId, response.statusCode()});
@@ -249,14 +190,7 @@ public class HornitzaileaService {
         }
 
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL + "/" + hornitzaileaId + "/osagaiak/" + osagaiaId))
-                    .timeout(Duration.ofSeconds(15))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.noBody())
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = ApiClient.post("/api/hornitzaileak/" + hornitzaileaId + "/osagaiak/" + osagaiaId, "");
 
             LOGGER.log(Level.INFO, "POST Hornitzailea/{0}/osagaiak/{1} - Status: {2}",
                     new Object[]{hornitzaileaId, osagaiaId, response.statusCode()});
@@ -276,13 +210,7 @@ public class HornitzaileaService {
         }
 
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL + "/" + hornitzaileaId + "/osagaiak/" + osagaiaId))
-                    .timeout(Duration.ofSeconds(15))
-                    .DELETE()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = ApiClient.delete("/api/hornitzaileak/" + hornitzaileaId + "/osagaiak/" + osagaiaId);
 
             LOGGER.log(Level.INFO, "DELETE Hornitzailea/{0}/osagaiak/{1} - Status: {2}",
                     new Object[]{hornitzaileaId, osagaiaId, response.statusCode()});

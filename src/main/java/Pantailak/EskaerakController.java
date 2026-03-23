@@ -818,7 +818,19 @@ public class EskaerakController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
-        alert.showAndWait();
+        if (type == Alert.AlertType.INFORMATION) {
+            alert.show();
+            javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(1.5));
+            delay.setOnFinished(e -> alert.close());
+            delay.play();
+        } else {
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void openChat(ActionEvent event) {
+        StageManager.openChatWindow();
     }
 
     @FXML

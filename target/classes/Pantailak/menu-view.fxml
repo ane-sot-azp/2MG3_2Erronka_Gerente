@@ -9,12 +9,13 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
 
 <BorderPane prefHeight="800.0" prefWidth="1500.0"
             style="-fx-background-color: #F5F5F5;"
-            xmlns="http://javafx.com/javafx/25"
+            xmlns="http://javafx.com/javafx/21.0.4"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="Pantailak.MenuController">
 
@@ -40,6 +41,26 @@
                     </graphic>
                     <tooltip>
                         <Tooltip text="Saioa itxi" style="-fx-background-color: #5E1B4F; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-size: 12px;"/>
+                    </tooltip>
+                </Button>
+
+                <Pane HBox.hgrow="ALWAYS"/>
+
+                <Button fx:id="btnChat"
+                        onAction="#openChat"
+                        style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 6;">
+                    <graphic>
+                        <ImageView fitWidth="26"
+                                   fitHeight="26"
+                                   preserveRatio="true"
+                                   pickOnBounds="true">
+                            <image>
+                                <Image url="@../icons/chat_icon.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Txata ireki"/>
                     </tooltip>
                 </Button>
             </children>
@@ -111,21 +132,6 @@
                                 prefHeight="44"
                                 text="Hornitzaileak"
                                 onAction="#onHornitzaileakClick"
-                                style="
-                                    -fx-background-color: #5E1B4F;
-                                    -fx-text-fill: white;
-                                    -fx-font-family: 'Segoe UI';
-                                    -fx-font-size: 14px;
-                                    -fx-background-radius: 8;
-                                    -fx-cursor: hand;
-                                    -fx-effect: dropshadow(gaussian, rgba(94,27,79,0.2), 6, 0, 0, 2);"/>
-
-                        <Button fx:id="btnPlaterak"
-                                prefWidth="130"
-                                minWidth="130"
-                                prefHeight="44"
-                                text="Platerak"
-                                onAction="#onPlaterakClick"
                                 style="
                                     -fx-background-color: #5E1B4F;
                                     -fx-text-fill: white;

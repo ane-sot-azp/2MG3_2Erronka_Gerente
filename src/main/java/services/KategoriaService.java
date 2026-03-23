@@ -1,19 +1,15 @@
 package services;
 
 import Klaseak.Kategoria;
+import DB.ApiClient;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 public class KategoriaService {
-    private final String baseUrl = "http://192.168.2.101:5000/api";
-    private final HttpClient httpClient = HttpClient.newHttpClient();
     private final Gson gson = new Gson();
 
     // Kategoriak guztiak lortu
@@ -22,12 +18,7 @@ public class KategoriaService {
             try {
                 System.out.println("INFO: Kategoriak kargatzen...");
 
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(baseUrl + "/kategoriak"))
-                        .GET()
-                        .build();
-
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                HttpResponse<String> response = ApiClient.get("/api/kategoriak");
 
                 System.out.println("INFO: Kategoriak erantzuna: " + response.statusCode());
 
@@ -74,17 +65,11 @@ public class KategoriaService {
             try {
                 String jsonBody = "{\"izena\":\"" + izena + "\"}";
 
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(baseUrl + "/kategoriak"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                        .build();
-
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                HttpResponse<String> response = ApiClient.post("/api/kategoriak", jsonBody);
 
                 System.out.println("INFO: POST kategoria - Status: " + response.statusCode());
 
-                if (response.statusCode() == 200) {
+                if (response.statusCode() == 201 || response.statusCode() == 200) {
                     SimpleKategoria simple = gson.fromJson(response.body(), SimpleKategoria.class);
                     return new Kategoria(simple.id, simple.izena);
                 }

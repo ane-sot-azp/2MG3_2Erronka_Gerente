@@ -57,6 +57,24 @@
                             <Tooltip text="Langilea ezabatu"/>
                         </tooltip>
                     </Button>
+
+                    <Button fx:id="btnChat"
+                            onAction="#openChat"
+                            style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 6;">
+                        <graphic>
+                            <ImageView fitWidth="26"
+                                       fitHeight="26"
+                                       preserveRatio="true"
+                                       pickOnBounds="true">
+                                <image>
+                                    <Image url="@../icons/chat_icon.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Txata ireki"/>
+                        </tooltip>
+                    </Button>
                 </HBox>
             </HBox>
 
@@ -97,19 +115,27 @@
                             </style>
                         </TableColumn>
 
-                        <TableColumn fx:id="colIzena" text="Izena" prefWidth="150"/>
+                        <TableColumn fx:id="colIzena" text="Izena" prefWidth="120"/>
 
-                        <TableColumn fx:id="colAbizena1" text="1. Abizena" prefWidth="150"/>
+                        <TableColumn fx:id="colAbizena" text="Abizena" prefWidth="150"/>
 
-                        <TableColumn fx:id="colAbizena2" text="2. Abizena" prefWidth="150"/>
-
-                        <TableColumn fx:id="colTelefonoa" text="Telefonoa" prefWidth="150">
+                        <TableColumn fx:id="colNAN" text="NAN" prefWidth="100">
                             <style>
                                 <String fx:value="-fx-alignment: CENTER;" />
                             </style>
                         </TableColumn>
 
-                        <TableColumn fx:id="colLanpostua" text="Lanpostua" prefWidth="200">
+                        <TableColumn fx:id="colKodea" text="Kodea" prefWidth="80">
+                            <style>
+                                <String fx:value="-fx-alignment: CENTER;" />
+                            </style>
+                        </TableColumn>
+
+                        <TableColumn fx:id="colErabiltzaileIzena" text="Erabiltzaile Izena" prefWidth="150"/>
+
+                        <TableColumn fx:id="colHelbidea" text="Helbidea" prefWidth="220"/>
+
+                        <TableColumn fx:id="colLanpostua" text="Lanpostua" prefWidth="150">
                             <style>
                                 <String fx:value="-fx-alignment: CENTER;" />
                             </style>
@@ -118,77 +144,80 @@
                 </TableView>
             </VBox>
 
-            <VBox spacing="20" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-radius: 5;">
+            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-radius: 5;">
                 <Label text="Langilearen datuak"
-                       style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+                       style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
 
-                <VBox spacing="15">
-                    <VBox spacing="5">
-                        <Label text="Izena *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
-                        <TextField fx:id="txtIzena"
-                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
-                    </VBox>
-
-                    <HBox spacing="10">
-                        <VBox spacing="5" HBox.hgrow="ALWAYS">
-                            <Label text="1. Abizena" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
-                            <TextField fx:id="txtAbizena1"
-                                       style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
-                        </VBox>
-                        <VBox spacing="5" HBox.hgrow="ALWAYS">
-                            <Label text="2. Abizena" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
-                            <TextField fx:id="txtAbizena2"
-                                       style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
-                        </VBox>
-                    </HBox>
-
-                    <VBox spacing="5">
-                        <Label text="Telefonoa *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
-                        <TextField fx:id="txtTelefonoa"
-                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
-                    </VBox>
-
-                    <VBox spacing="5">
-                        <Label text="Lanpostua *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
-                        <ComboBox fx:id="comboLanpostu"
-                                  style="-fx-background-radius: 5; -fx-padding: 8;"/>
-                    </VBox>
-
-                    <CheckBox fx:id="checkErabiltzaile"
-                              text="Erabiltzailea sortu"
-                              style="-fx-font-weight: bold;"/>
-
-                    <VBox fx:id="boxErabiltzaile"
-                          spacing="10"
-                          style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 5;"
-                          visible="false"
-                          managed="false">
-
-                        <Label text="Erabiltzailearen datuak"
-                               style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
-
-                        <VBox spacing="5">
-                            <Label text="Erabiltzaile izena *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
-                            <TextField fx:id="txtUser"
-                                       style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
+                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: white;">
+                    <VBox spacing="10">
+                        <VBox spacing="2">
+                            <Label text="Izena *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                            <TextField fx:id="txtIzena"
+                                       style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 5;"/>
                         </VBox>
 
-                        <VBox spacing="5">
-                            <Label text="Pasahitza *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
-                            <PasswordField fx:id="txtPass"
-                                           style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
+                        <VBox spacing="2">
+                            <Label text="Abizena *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                            <TextField fx:id="txtAbizena"
+                                       style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 5;"/>
+                        </VBox>
+
+                        <HBox spacing="10">
+                            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                <Label text="NAN *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                                <TextField fx:id="txtNAN"
+                                           style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 5;"/>
+                            </VBox>
+                            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                <Label text="Kodea *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                                <TextField fx:id="txtLangileKodea"
+                                           style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 5;"/>
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="2">
+                            <Label text="Helbidea" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                            <TextField fx:id="txtHelbidea"
+                                       style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 5;"/>
+                        </VBox>
+
+                        <VBox spacing="2">
+                            <Label text="Lanpostua *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                            <ComboBox fx:id="comboLanpostu" maxWidth="Infinity"
+                                      style="-fx-background-radius: 5; -fx-padding: 5;"/>
+                        </VBox>
+
+                        <VBox spacing="5" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 5;">
+                            <Label text="Erabiltzailearen datuak"
+                                   style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+
+                            <VBox spacing="2">
+                                <Label text="Erabiltzaile izena *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                                <TextField fx:id="txtUser"
+                                           style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 5;"/>
+                            </VBox>
+
+                            <VBox spacing="2">
+                                <Label text="Pasahitza *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                                <PasswordField fx:id="txtPass"
+                                               style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 5;"/>
+                            </VBox>
                         </VBox>
                     </VBox>
-                </VBox>
+                </ScrollPane>
 
                 <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button fx:id="btnResetPass"
+                            text="Reset Pasahitza"
+                            style="-fx-background-color: #ed8936; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 5 15;"/>
+
                     <Button fx:id="btnCancel"
                             text="Utzi"
-                            style="-fx-background-color: #a0aec0; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 8 20;"/>
+                            style="-fx-background-color: #a0aec0; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 5 15;"/>
 
                     <Button fx:id="btnSave"
                             text="Gorde"
-                            style="-fx-background-color: #3182ce; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 8 20;"/>
+                            style="-fx-background-color: #3182ce; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 5 15;"/>
                 </HBox>
             </VBox>
         </SplitPane>

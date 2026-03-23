@@ -6,7 +6,10 @@ import java.time.Duration;
 
 public class ApiClient {
 
-    private static final String BASE_URL = "http://192.168.2.101:5000";
+    private static final String BASE_URL = System.getProperty(
+            "API_BASE_URL",
+            System.getenv().getOrDefault("API_BASE_URL", "http://localhost:5101")
+    );
     private static final HttpClient client = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
             .build();
@@ -57,5 +60,9 @@ public class ApiClient {
                 .build();
 
         return client.send(req, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public static String getBaseUrl() {
+        return BASE_URL;
     }
 }

@@ -5,8 +5,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.Cursor?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 
 <?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <VBox xmlns="http://javafx.com/javafx/17.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Pantailak.OsagaiakController"
@@ -47,6 +51,24 @@
                     text="🔄 Freskatu"
                     onAction="#handleRefresh"
                     style="-fx-background-color: #4299e1; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;"/>
+
+            <Button fx:id="btnChat"
+                    onAction="#openChat"
+                    style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 6;">
+                <graphic>
+                    <ImageView fitWidth="26"
+                               fitHeight="26"
+                               preserveRatio="true"
+                               pickOnBounds="true">
+                        <image>
+                            <Image url="@../icons/chat_icon.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Txata ireki"/>
+                </tooltip>
+            </Button>
         </HBox>
     </HBox>
 
@@ -72,7 +94,7 @@
         <VBox spacing="5" HBox.hgrow="ALWAYS"
               style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 15; -fx-border-color: #e2e8f0; -fx-border-width: 1;">
             <Label text="Stock egoera" style="-fx-text-fill: #718096; -fx-font-size: 14;"/>
-            <ProgressBar fx:id="stockProgressBar" prefWidth="200"/>
+            <ProgressBar fx:id="stockProgressSummaryBar" prefWidth="200"/>
         </VBox>
 
         <Button text="Txostena"
@@ -122,40 +144,30 @@
                     <TableColumn fx:id="idColumn" text="ID" prefWidth="60"/>
                     <TableColumn fx:id="izenaColumn" text="Izena" prefWidth="250"/>
                     <TableColumn fx:id="prezioaColumn" text="Prezioa" prefWidth="100"/>
-                    <TableColumn fx:id="stockColumn" text="Stock" prefWidth="80"/>
-                    <TableColumn fx:id="gutxienekoStockColumn" text="Gutxienekoa" prefWidth="100"/>
-                    <TableColumn fx:id="eskatuColumn" text="Eskatzeko" prefWidth="90"/>
-                    <TableColumn fx:id="balioaColumn" text="Balioa" prefWidth="100"/>
+                    <TableColumn fx:id="stockColumn" text="Stock" prefWidth="100"/>
+                    <TableColumn fx:id="balioaColumn" text="Balio Totala" prefWidth="120"/>
                 </columns>
             </TableView>
         </VBox>
 
-        <VBox spacing="15" prefWidth="300"
-              style="-fx-background-color: white; -fx-background-radius: 5; -fx-padding: 15; -fx-border-color: #e2e8f0; -fx-border-width: 1;">
+        <VBox spacing="20" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-radius: 5;" prefWidth="350">
+            <Label text="Osagaiaren xehetasunak" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+            
+            <VBox spacing="10">
+                <Label text="Izena:"/>
+                <TextField fx:id="izenaField" />
+                
+                <Label text="Prezioa (€):"/>
+                <TextField fx:id="prezioaField" />
+                
+                <Label text="Stock kopurua:"/>
+                <TextField fx:id="stockField" />
+            </VBox>
 
-            <Label text="Xehetasunak" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
-
-            <GridPane hgap="10" vgap="10">
-                <columnConstraints>
-                    <ColumnConstraints halignment="RIGHT" prefWidth="120"/>
-                    <ColumnConstraints halignment="LEFT" prefWidth="150"/>
-                </columnConstraints>
-
-                <Label text="Izena:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <TextField fx:id="izenaField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-
-                <Label text="Prezioa (€):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <TextField fx:id="prezioaField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
-                <Label text="Stock:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                <TextField fx:id="stockField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
-                <Label text="Gutxienekoa:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                <TextField fx:id="gutxienekoStockField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-
-                <Label text="Eskatzeko:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                <CheckBox fx:id="eskatuCheckBox" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-            </GridPane>
+            <VBox spacing="5">
+                <Label text="Stock egoera:"/>
+                <ProgressBar fx:id="stockProgressBar" maxWidth="Infinity" progress="0.0" />
+            </VBox>
 
             <VBox spacing="8" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1;">
                 <Label text="Stock egoerak:" style="-fx-font-weight: bold;"/>

@@ -32,7 +32,7 @@ public class LoginController {
             StageManager.hideFloatingChatButton();
 
             Platform.runLater(() -> {
-                StageManager.showFloatingChatButton(user);
+                StageManager.enableHeaderChat(user);
                 menuNagusiaIreki();
             });
         } else {

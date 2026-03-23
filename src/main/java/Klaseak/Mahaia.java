@@ -1,50 +1,52 @@
 package Klaseak;
 
-import javafx.beans.property.*;
 import com.google.gson.annotations.SerializedName;
 
 public class Mahaia {
     @SerializedName("id")
-    private final IntegerProperty id = new SimpleIntegerProperty();
+    private int id;
 
     @SerializedName("zenbakia")
-    private final IntegerProperty zenbakia = new SimpleIntegerProperty();
+    private int zenbakia;
 
-    @SerializedName("pertsonaMax")
-    private final IntegerProperty pertsonaMax = new SimpleIntegerProperty();
+    @SerializedName("pertsonaKopurua")
+    private int pertsonaKopurua;
 
-    @SerializedName("occupied")  // Esto asegura que Gson mapee "occupied" del JSON
-    private final BooleanProperty occupied = new SimpleBooleanProperty();
+    @SerializedName("kokapena")
+    private String kokapena;
 
     public Mahaia() {}
 
-    public Mahaia(int id, int zenbakia, int pertsonaMax, boolean occupied) {
-        this.id.set(id);
-        this.zenbakia.set(zenbakia);
-        this.pertsonaMax.set(pertsonaMax);
-        this.occupied.set(occupied);
+    public Mahaia(int id, int zenbakia, int pertsonaKopurua, String kokapena) {
+        this.id = id;
+        this.zenbakia = zenbakia;
+        this.pertsonaKopurua = pertsonaKopurua;
+        this.kokapena = kokapena;
     }
 
-    // Properties
-    public IntegerProperty idProperty() { return id; }
-    public IntegerProperty zenbakiaProperty() { return zenbakia; }
-    public IntegerProperty pertsonaMaxProperty() { return pertsonaMax; }
-    public BooleanProperty occupiedProperty() { return occupied; }
-
     // Getters
-    public int getId() { return id.get(); }
-    public int getZenbakia() { return zenbakia.get(); }
-    public int getPertsonaMax() { return pertsonaMax.get(); }
-    public boolean isOccupied() { return occupied.get(); }
+    public int getId() { return id; }
+    public int getZenbakia() { return zenbakia; }
+    public int getPertsonaKopurua() { return pertsonaKopurua; }
+    public String getKokapena() { return kokapena != null ? kokapena : ""; }
+
+    public int getPertsonaMax() { return getPertsonaKopurua(); }
+
+    public boolean isOccupied() { return false; }
+    public boolean isOkupatuta() { return isOccupied(); }
 
     // Setters
-    public void setId(int id) { this.id.set(id); }
-    public void setZenbakia(int zenbakia) { this.zenbakia.set(zenbakia); }
-    public void setPertsonaMax(int pertsonaMax) { this.pertsonaMax.set(pertsonaMax); }
-    public void setOccupied(boolean occupied) { this.occupied.set(occupied); }
+    public void setId(int id) { this.id = id; }
+    public void setZenbakia(int zenbakia) { this.zenbakia = zenbakia; }
+    public void setPertsonaKopurua(int pertsonaKopurua) { this.pertsonaKopurua = pertsonaKopurua; }
+    public void setKokapena(String kokapena) { this.kokapena = kokapena; }
+
+    public void setPertsonaMax(int pertsonaMax) { setPertsonaKopurua(pertsonaMax); }
+
+    public void setOccupied(boolean occupied) { }
 
     @Override
     public String toString() {
-        return "Mahai " + zenbakia.get() + " (ID: " + id.get() + ", Occupied: " + occupied.get() + ")";
+        return "Mahai " + zenbakia + " (" + getKokapena() + ")";
     }
 }

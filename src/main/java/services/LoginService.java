@@ -1,56 +1,37 @@
 package services;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import DB.ApiClient;
+import java.net.http.HttpResponse;
 
 public class LoginService {
 
     public static String login(String erabiltzailea, String pasahitza) {
 
         try {
-            URL url = new URL("http://192.168.2.101:5000/api/login/admin");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            // erabiltzailea int bat dela suposatzen dugu (langile_kodea)
+            int langileKodea = Integer.parseInt(erabiltzailea);
+            String json = "{ \"langile_kodea\": " + langileKodea + ", \"pasahitza\": \"" + pasahitza + "\" }";
 
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
+            HttpResponse<String> response = ApiClient.post("/api/login/admin", json);
 
-            String json = "{ \"erabiltzailea\": \"" + erabiltzailea + "\", \"pasahitza\": \"" + pasahitza + "\" }";
-
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(json.getBytes());
-            }
-
-            int code = conn.getResponseCode();
-
-            InputStream is = (code >= 200 && code < 300)
-                    ? conn.getInputStream()
-                    : conn.getErrorStream();
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            StringBuilder sb = new StringBuilder();
-            String line;
-
-            while ((line = br.readLine()) != null)
-                sb.append(line);
-
-            String response = sb.toString();
+            int code = response.statusCode();
 
             if (code == 200) {
                 return "OK";
             }
 
-            if (response.contains("Erabiltzaile edo pasahitz okerra")) {
+            if (code == 401) {
                 return "BAD_CREDENTIALS";
             }
 
-            if (response.contains("Ez duzu baimenik sartzeko")) {
+            if (code == 403) {
                 return "NO_PERMISSION";
             }
 
             return "ERROR";
 
+        } catch (NumberFormatException e) {
+            return "BAD_CREDENTIALS"; // Kodea ez bada zenbakia
         } catch (Exception e) {
             e.printStackTrace();
             return "ERROR";
