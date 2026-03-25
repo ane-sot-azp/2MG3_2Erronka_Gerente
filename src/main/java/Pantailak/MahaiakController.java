@@ -607,6 +607,11 @@ public class MahaiakController {
         StageManager.openChatWindow();
     }
 
+    @FXML
+    private void openEguraldia(javafx.event.ActionEvent event) {
+        StageManager.openEguraldiaWindow();
+    }
+
     public static class MahaiaTableModel {
         private final SimpleIntegerProperty id;
         private final SimpleIntegerProperty zenbakia;

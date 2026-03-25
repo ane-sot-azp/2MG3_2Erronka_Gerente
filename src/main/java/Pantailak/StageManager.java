@@ -51,6 +51,7 @@ public class StageManager {
     private static Label notificationCount = null;
     private static String erabiltzaileIzena = null;
     private static Stage chatWindow = null;
+    private static Stage eguraldiWindow = null;
     private static TxatController currentChatController = null; 
     private static List<String> unreadMessages = new ArrayList<>();
     private static List<String> sessionMessages = new ArrayList<>();
@@ -774,6 +775,42 @@ public class StageManager {
                 if (useFloatingChatButton) {
                     showFloatingChatButtonIfHidden();
                 }
+            }
+        });
+    }
+
+    public static void openEguraldiaWindow() {
+        Platform.runLater(() -> {
+            try {
+                if (eguraldiWindow != null && eguraldiWindow.isShowing()) {
+                    eguraldiWindow.requestFocus();
+                    eguraldiWindow.toFront();
+                    return;
+                }
+
+                FXMLLoader loader = new FXMLLoader(StageManager.class.getResource("eguraldia-view.fxml"));
+                Parent root = loader.load();
+
+                eguraldiWindow = new Stage();
+                eguraldiWindow.setTitle("Eguraldia");
+                eguraldiWindow.getIcons().add(APP_ICON);
+
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(APP_CSS);
+                eguraldiWindow.setScene(scene);
+
+                eguraldiWindow.setMinWidth(540);
+                eguraldiWindow.setMinHeight(420);
+                eguraldiWindow.setWidth(640);
+                eguraldiWindow.setHeight(460);
+                eguraldiWindow.setResizable(false);
+                eguraldiWindow.centerOnScreen();
+
+                eguraldiWindow.setOnCloseRequest(e -> eguraldiWindow = null);
+                eguraldiWindow.show();
+            } catch (Exception e) {
+                System.err.println("Errorea eguraldia irekitzen: " + e.getMessage());
+                e.printStackTrace();
             }
         });
     }

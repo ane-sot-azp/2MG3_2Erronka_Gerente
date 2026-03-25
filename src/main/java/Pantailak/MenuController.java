@@ -55,6 +55,11 @@ public class MenuController {
     }
 
     @FXML
+    private void openEguraldia(ActionEvent event) {
+        StageManager.openEguraldiaWindow();
+    }
+
+    @FXML
     private void onLangileakClick(ActionEvent event) {
         try {
             StageManager.switchStage(

@@ -471,4 +471,9 @@ public class OsagaiakController {
         StageManager.openChatWindow();
     }
 
+    @FXML
+    private void openEguraldia(ActionEvent event) {
+        StageManager.openEguraldiaWindow();
+    }
+
 }

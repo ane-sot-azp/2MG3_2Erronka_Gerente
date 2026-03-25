@@ -118,6 +118,11 @@ public class LangileakController {
     private void openChat(ActionEvent event) {
         StageManager.openChatWindow();
     }
+
+    @FXML
+    private void openEguraldia(ActionEvent event) {
+        StageManager.openEguraldiaWindow();
+    }
     private void resetPasahitza() {
         Langilea selected = tableLangileak.getSelectionModel().getSelectedItem();
         if (selected == null) {

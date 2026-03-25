@@ -319,4 +319,9 @@ public class HornitzaileakController {
     private void openChat(ActionEvent event) {
         StageManager.openChatWindow();
     }
+
+    @FXML
+    private void openEguraldia(ActionEvent event) {
+        StageManager.openEguraldiaWindow();
+    }
 }

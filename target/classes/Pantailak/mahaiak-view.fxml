@@ -70,6 +70,18 @@
                         </tooltip>
                     </Button>
 
+                    <Button fx:id="btnEguraldia"
+                            onAction="#openEguraldia"
+                            style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 6;">
+                        <graphic>
+                            <SVGPath content="M12 4V2M12 22v-2M4 12H2m20 0h-2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"
+                                     style="-fx-stroke: #4a5568; -fx-stroke-width: 2.2; -fx-fill: transparent;"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Eguraldia"/>
+                        </tooltip>
+                    </Button>
+
                     <Button fx:id="btnChat"
                             onAction="#openChat"
                             style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 6;">

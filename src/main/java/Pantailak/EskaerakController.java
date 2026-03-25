@@ -834,6 +834,11 @@ public class EskaerakController {
     }
 
     @FXML
+    private void openEguraldia(ActionEvent event) {
+        StageManager.openEguraldiaWindow();
+    }
+
+    @FXML
     public void atzeraBueltatu(ActionEvent actionEvent) {
         try {
             Stage currentStage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
