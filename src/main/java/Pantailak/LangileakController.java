@@ -73,7 +73,7 @@ public class LangileakController {
     private Label langileKopuruaLabel;
 
     @FXML
-    private Label totalLangileakLabel, sukaldariakLabel, zerbitzariakLabel, adminLabel;
+    private Label totalLangileakLabel, sukaldariakLabel, zerbitzariakLabel, adminLabel, gerenteakLabel;
 
     @FXML
     private Button btnAdd, btnEdit, btnDelete, atzeraBotoia, refreshButton;
@@ -497,7 +497,10 @@ public class LangileakController {
             totalLangileakLabel.setText(String.valueOf(langileakLista.size()));
             sukaldariakLabel.setText(String.valueOf(langileakLista.stream().filter(l -> l.getLanpostuaName().equals("Sukaldaria")).count()));
             zerbitzariakLabel.setText(String.valueOf(langileakLista.stream().filter(l -> l.getLanpostuaName().equals("Zerbitzaria")).count()));
-            adminLabel.setText(String.valueOf(langileakLista.stream().filter(l -> l.getLanpostuaName().equals("Administratzailea") || l.getLanpostuaName().equals("Gerentea")).count()));
+            adminLabel.setText(String.valueOf(langileakLista.stream().filter(l -> l.getLanpostuaName().equals("Administratzailea")).count()));
+            if (gerenteakLabel != null) {
+                gerenteakLabel.setText(String.valueOf(langileakLista.stream().filter(l -> l.getLanpostuaName().equals("Gerentea")).count()));
+            }
         }
     }
 

@@ -111,6 +111,7 @@
                                     -fx-cursor: hand;
                                     -fx-effect: dropshadow(gaussian, rgba(94,27,79,0.2), 6, 0, 0, 2);"/>
 
+                        <!--
                         <Button fx:id="btnEskaerak"
                                 prefWidth="130"
                                 minWidth="130"
@@ -125,6 +126,7 @@
                                     -fx-background-radius: 8;
                                     -fx-cursor: hand;
                                     -fx-effect: dropshadow(gaussian, rgba(94,27,79,0.2), 6, 0, 0, 2);"/>
+                        -->
 
                         <Button fx:id="btnHornitzaileak"
                                 prefWidth="130"
