@@ -28,11 +28,12 @@ public class LoginController {
         String result = LoginService.login(user, pass);
 
         if ("OK".equals(result)) {
+            String chatDisplayName = LoginService.getChatDisplayName(user);
             SessionContext.setCurrentUser(user);
             StageManager.hideFloatingChatButton();
 
             Platform.runLater(() -> {
-                StageManager.enableHeaderChat(user);
+                StageManager.enableHeaderChat(chatDisplayName);
                 menuNagusiaIreki();
             });
         } else {

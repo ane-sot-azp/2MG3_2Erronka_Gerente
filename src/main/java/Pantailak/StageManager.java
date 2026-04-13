@@ -42,6 +42,8 @@ public class StageManager {
     private static final String COLOR_BEIGE = "#C19A6B";
     private static final String COLOR_ZURIA = "#F5F5F5";
     private static final String COLOR_GORRIA = "#5B1C1C";
+    private static final String CHAT_SERVER_HOST = "192.168.10.5";
+    private static final int CHAT_SERVER_PORT = 5555;
 
     
     private static Stage floatingStage = null;
@@ -237,7 +239,7 @@ public class StageManager {
     private static void connectToChatServer() {
         new Thread(() -> {
             try {
-                chatSocket = new Socket("192.168.2.101", 5555);
+                chatSocket = new Socket(CHAT_SERVER_HOST, CHAT_SERVER_PORT);
                 chatReader = new BufferedReader(new InputStreamReader(chatSocket.getInputStream()));
                 chatWriter = new PrintWriter(chatSocket.getOutputStream(), true);
                 isChatServerConnected = true;

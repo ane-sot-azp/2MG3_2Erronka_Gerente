@@ -1,6 +1,7 @@
 package services;
 
 import DB.ApiClient;
+import Klaseak.Langilea;
 import java.net.http.HttpResponse;
 
 public class LoginService {
@@ -36,5 +37,24 @@ public class LoginService {
             e.printStackTrace();
             return "ERROR";
         }
+    }
+
+    public static String getChatDisplayName(String erabiltzailea) {
+        try {
+            int langileKodea = Integer.parseInt(erabiltzailea);
+
+            for (Langilea langilea : LangileaService.getAll()) {
+                if (langilea.getLangileKodea() == langileKodea) {
+                    String izena = langilea.getIzena();
+                    if (izena != null && !izena.isBlank()) {
+                        return izena.trim();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Errorea chat-eko izena ebaztean: " + e.getMessage());
+        }
+
+        return erabiltzailea;
     }
 }
