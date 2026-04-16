@@ -50,6 +50,7 @@ public class EskaerakController {
     @FXML private Button refreshButton, gehituButton, garbituButton, sortuButton;
     @FXML private Button ikusiButton, bukatuButton, ezabatuEskaeraButton;
     @FXML private Button atzeraBotoia;
+    @FXML private Button btnChat;
 
     @FXML private Label guztiraLabel;
     @FXML private Label kontaketaLabel;
@@ -77,6 +78,9 @@ public class EskaerakController {
         datuakKargatu();
         setupEventHandlers();
         prezioaEditableaZiurtatu();
+        if (btnChat != null) {
+            btnChat.setDisable(!SessionContext.isChatAllowed());
+        }
     }
 
     private void prezioaEditableaZiurtatu() {

@@ -4,6 +4,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import Klaseak.Langilea;
+import services.LangileaService;
 import services.LoginService;
 import services.SessionContext;
 import java.io.IOException;
@@ -28,12 +30,33 @@ public class LoginController {
         String result = LoginService.login(user, pass);
 
         if ("OK".equals(result)) {
-            String chatDisplayName = LoginService.getChatDisplayName(user);
+            Langilea current = null;
+            try {
+                int kodea = Integer.parseInt(user);
+                for (Langilea l : LangileaService.getAll()) {
+                    if (l != null && l.getLangileKodea() == kodea) {
+                        current = l;
+                        break;
+                    }
+                }
+            } catch (Exception ignored) {}
+
+            if (current != null) {
+                SessionContext.setCurrentLangilea(current);
+            }
+
+            String chatDisplayName = current != null && current.getIzena() != null && !current.getIzena().isBlank()
+                    ? current.getIzena().trim()
+                    : LoginService.getChatDisplayName(user);
             SessionContext.setCurrentUser(user);
             StageManager.hideFloatingChatButton();
 
             Platform.runLater(() -> {
-                StageManager.enableHeaderChat(chatDisplayName);
+                if (SessionContext.isChatAllowed()) {
+                    StageManager.enableHeaderChat(chatDisplayName);
+                } else {
+                    StageManager.hideFloatingChatButton();
+                }
                 menuNagusiaIreki();
             });
         } else {

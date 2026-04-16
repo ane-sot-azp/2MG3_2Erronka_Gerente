@@ -199,6 +199,14 @@
                                       style="-fx-background-radius: 5; -fx-padding: 5;"/>
                         </VBox>
 
+                        <VBox spacing="2">
+                            <Label text="Txat sarbidea" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                            <CheckBox fx:id="chkTxatSarbidea"
+                                      text="Baimenduta"
+                                      selected="true"
+                                      style="-fx-padding: 4 0 0 0;"/>
+                        </VBox>
+
                         <VBox spacing="5" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 5;">
                             <Label text="Erabiltzailearen datuak"
                                    style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>

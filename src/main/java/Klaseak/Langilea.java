@@ -19,6 +19,8 @@ public class Langilea {
     private String pasahitza;
     private String helbidea;
     private Lanpostua lanpostua;
+    @SerializedName("txat_sarbidea")
+    private boolean txatSarbidea;
 
     public Langilea(int id, String izena, String abizena, String nan, String erabiltzaileIzena, int langileKodea, String pasahitza, String helbidea, Lanpostua lanpostua) {
         this.id = id;
@@ -85,4 +87,8 @@ public class Langilea {
         String name = lanpostua.getIzena();
         return name != null ? name : "";
     }
+
+    public boolean isTxatSarbidea() { return txatSarbidea; }
+    public boolean getTxatSarbidea() { return txatSarbidea; }
+    public void setTxatSarbidea(boolean txatSarbidea) { this.txatSarbidea = txatSarbidea; }
 }

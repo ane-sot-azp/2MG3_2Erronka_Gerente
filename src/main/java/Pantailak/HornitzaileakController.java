@@ -46,6 +46,7 @@ public class HornitzaileakController {
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterOrdenatu;
     @FXML private Button btnAddHornitzailea, btnDeleteHornitzailea, atzeraBotoia, refreshButton;
+    @FXML private Button btnChat;
 
     @FXML private Label hornitzaileKopuruaLabel;
     @FXML private Label lblOsagaiKopurua;
@@ -90,6 +91,9 @@ public class HornitzaileakController {
             tableHornitzailearenOsagaiak.setItems(hornitzailearenOsagaiakLista);
             tableHornitzaileak.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
             tableHornitzailearenOsagaiak.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            if (btnChat != null) {
+                btnChat.setDisable(!SessionContext.isChatAllowed());
+            }
 
             formularioakKonfiguratu();
             filtroakKonfiguratu();

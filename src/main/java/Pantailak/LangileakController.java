@@ -57,6 +57,8 @@ public class LangileakController {
     @FXML
     private ComboBox<Lanpostua> comboLanpostu;
     @FXML
+    private CheckBox chkTxatSarbidea;
+    @FXML
     private TextField txtUser;
     @FXML
     private PasswordField txtPass;
@@ -77,6 +79,8 @@ public class LangileakController {
 
     @FXML
     private Button btnAdd, btnEdit, btnDelete, atzeraBotoia, refreshButton;
+    @FXML
+    private Button btnChat;
 
     private ObservableList<Langilea> langileakLista;
     private FilteredList<Langilea> filteredData;
@@ -104,6 +108,9 @@ public class LangileakController {
         botoiakKonfiguratu();
         taulaAukera();
         formularioaGarbitu();
+        if (btnChat != null) {
+            btnChat.setDisable(!SessionContext.isChatAllowed());
+        }
     }
 
     private void formularioaKonfiguratu() {
@@ -267,6 +274,9 @@ public class LangileakController {
         txtPass.clear(); // Segurtasunagatik ez dugu pasahitza kargatzen
 
         comboLanpostu.setValue(langilea.getLanpostua());
+        if (chkTxatSarbidea != null) {
+            chkTxatSarbidea.setSelected(langilea.isTxatSarbidea());
+        }
     }
 
     private void formularioaGarbitu() {
@@ -280,6 +290,7 @@ public class LangileakController {
         txtUser.clear();
         txtPass.clear();
         comboLanpostu.setValue(null);
+        if (chkTxatSarbidea != null) chkTxatSarbidea.setSelected(true);
     }
 
     private void langileaGorde() {
@@ -333,6 +344,9 @@ public class LangileakController {
             l.setHelbidea(helbidea);
             l.setErabiltzaileIzena(user);
             l.setLanpostua(lanpostua);
+            if (chkTxatSarbidea != null) {
+                l.setTxatSarbidea(chkTxatSarbidea.isSelected());
+            }
             if (!pass.isEmpty()) {
                 l.setPasahitza(pass);
             }

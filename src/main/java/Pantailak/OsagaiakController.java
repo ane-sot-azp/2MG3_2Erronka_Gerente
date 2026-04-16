@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import services.ActionLogger;
 import services.OsagaiaService;
+import services.SessionContext;
 import Klaseak.Osagaia;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -48,6 +49,7 @@ public class OsagaiakController {
     @FXML private Label stockGutxiLabel;
     @FXML private Label balioTotalaLabel;
     @FXML private ProgressBar stockProgressBar;
+    @FXML private Button btnChat;
 
     private final ObservableList<Osagaia> osagaiakList = FXCollections.observableArrayList();
     private final FilteredList<Osagaia> filteredData = new FilteredList<>(osagaiakList);
@@ -59,6 +61,9 @@ public class OsagaiakController {
         loadOsagaiak();
         setupEventHandlers();
         updateStatistics();
+        if (btnChat != null) {
+            btnChat.setDisable(!SessionContext.isChatAllowed());
+        }
     }
 
     private void setupTable() {

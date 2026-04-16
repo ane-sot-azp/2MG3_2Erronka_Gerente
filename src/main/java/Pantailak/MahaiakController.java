@@ -56,6 +56,7 @@ public class MahaiakController {
     @FXML private Label libreLabel;
     @FXML private Label gehienekoLabel;
     @FXML private Button refreshButton;
+    @FXML private Button btnChat;
 
     private boolean editMode = false;
     private MahaiaTableModel mahaiEditatzen = null;
@@ -74,6 +75,10 @@ public class MahaiakController {
             kargatuMahaiak();
 
             aldatuEditMode(false, null);
+
+            if (btnChat != null) {
+                btnChat.setDisable(!SessionContext.isChatAllowed());
+            }
 
             System.out.println("INFO: Controller ondo hasieratuta");
         } catch (Exception e) {

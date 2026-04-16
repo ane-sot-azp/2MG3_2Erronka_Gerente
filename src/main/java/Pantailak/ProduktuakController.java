@@ -50,6 +50,7 @@ public class ProduktuakController {
     @FXML private Button btnDelete;
     @FXML private Button btnNew;
     @FXML private Button refreshButton;
+    @FXML private Button btnChat;
 
     @FXML private TableView<ProduktuaOsagaia> tableProduktuaOsagaiak;
     @FXML private TableColumn<ProduktuaOsagaia, String> colOsIzena;
@@ -117,6 +118,9 @@ public class ProduktuakController {
 
         loadData();
         clearForm();
+        if (btnChat != null) {
+            btnChat.setDisable(!SessionContext.isChatAllowed());
+        }
     }
 
     private void loadData() {

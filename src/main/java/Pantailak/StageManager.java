@@ -18,6 +18,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import services.SessionContext;
 
 import java.io.*;
 import java.net.Socket;
@@ -711,6 +712,13 @@ public class StageManager {
     public static void openChatWindow() {
         Platform.runLater(() -> {
             try {
+                if (!SessionContext.isChatAllowed()) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setHeaderText(null);
+                    alert.setContentText("Ez duzu txaterako sarbiderik.");
+                    alert.showAndWait();
+                    return;
+                }
                 hideFloatingChatButton();
 
                 if (chatWindow != null && chatWindow.isShowing()) {
