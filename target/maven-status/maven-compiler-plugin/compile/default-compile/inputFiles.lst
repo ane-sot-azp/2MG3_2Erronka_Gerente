@@ -9,6 +9,8 @@ C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Klase
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Klaseak\Lanpostua.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Klaseak\Mahaia.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Klaseak\Osagaia.java
+C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Klaseak\Produktua.java
+C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Klaseak\ProduktuaOsagaia.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Kontrola\ErabiltzaileKudeaketa.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\module-info.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Pantailak\EguraldiaController.java
@@ -27,9 +29,11 @@ C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Panta
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Pantailak\MenuController.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Pantailak\OsagaiakApplication.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Pantailak\OsagaiakController.java
+C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Pantailak\ProduktuakController.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Pantailak\StageManager.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\Pantailak\TxatController.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\services\ActionLogger.java
+C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\services\EguraldiaErantzuna.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\services\EguraldiaService.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\services\EguraldiInfo.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\services\ErabiltzaileaService.java
@@ -41,4 +45,5 @@ C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\servi
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\services\MahaiaService.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\services\OsagaiaService.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\services\PDFSortzailea.java
+C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\services\ProduktuaService.java
 C:\Users\irait\Documents\2MG3\2Erronka\2MG3_2Erronka_Gerente\src\main\java\services\SessionContext.java

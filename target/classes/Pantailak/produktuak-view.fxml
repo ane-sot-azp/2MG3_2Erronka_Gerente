@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+<?import java.lang.String?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Pantailak.ProduktuakController"
+            style="-fx-background-color: #f8fafc;">
+
+    <top>
+        <VBox spacing="0">
+            <HBox spacing="15" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 15 20; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+
+                <Button fx:id="atzeraBotoia" onAction="#atzeraBueltatu"
+                        prefHeight="40" prefWidth="40"
+                        style="-fx-background-color: #4a5568; -fx-background-radius: 20; -fx-cursor: hand;">
+                    <graphic>
+                        <SVGPath content="M15 19l-7-7 7-7"
+                                 style="-fx-stroke: white; -fx-stroke-width: 2; -fx-fill: transparent;"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Atzera"/>
+                    </tooltip>
+                </Button>
+
+                <Label text="Produktuen kudeaketa"
+                       style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+
+                <Pane HBox.hgrow="ALWAYS"/>
+
+                <HBox spacing="8" alignment="CENTER_RIGHT">
+                    <TextField fx:id="searchField"
+                               promptText="Bilatu produktua..."
+                               prefWidth="220"
+                               style="-fx-background-radius: 5; -fx-border-radius: 5;"/>
+
+                    <Button fx:id="btnNew"
+                            text="Berria"
+                            style="-fx-background-color: #38a169; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 8 15;"/>
+
+                    <Button fx:id="refreshButton"
+                            text="🔄 Freskatu"
+                            style="-fx-background-color: #4a5568; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 8 15;"/>
+
+                    <Button fx:id="btnEguraldia"
+                            onAction="#openEguraldia"
+                            style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 6;">
+                        <graphic>
+                            <SVGPath content="M12 4V2M12 22v-2M4 12H2m20 0h-2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"
+                                     style="-fx-stroke: #4a5568; -fx-stroke-width: 2.2; -fx-fill: transparent;"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Eguraldia"/>
+                        </tooltip>
+                    </Button>
+
+                    <Button fx:id="btnChat"
+                            onAction="#openChat"
+                            style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 6;">
+                        <graphic>
+                            <ImageView fitWidth="26" fitHeight="26" preserveRatio="true" pickOnBounds="true">
+                                <image>
+                                    <Image url="@../icons/chat_icon.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Txata ireki"/>
+                        </tooltip>
+                    </Button>
+                </HBox>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT"
+                  style="-fx-background-color: #f7fafc; -fx-padding: 10 20; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Label fx:id="produktuaKopuruaLabel"
+                       text="0 produktu"
+                       style="-fx-text-fill: #718096; -fx-font-size: 14;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.62" style="-fx-padding: 15;">
+            <VBox spacing="10">
+                <TableView fx:id="tableProduktuak"
+                           style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-radius: 5;">
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="70">
+                            <style>
+                                <String fx:value="-fx-alignment: CENTER;"/>
+                            </style>
+                        </TableColumn>
+                        <TableColumn fx:id="colIzena" text="Izena" prefWidth="220"/>
+                        <TableColumn fx:id="colPrezioa" text="Prezioa" prefWidth="110">
+                            <style>
+                                <String fx:value="-fx-alignment: CENTER;"/>
+                            </style>
+                        </TableColumn>
+                        <TableColumn fx:id="colMota" text="Mota" prefWidth="120">
+                            <style>
+                                <String fx:value="-fx-alignment: CENTER;"/>
+                            </style>
+                        </TableColumn>
+                        <TableColumn fx:id="colStock" text="Stock" prefWidth="90">
+                            <style>
+                                <String fx:value="-fx-alignment: CENTER;"/>
+                            </style>
+                        </TableColumn>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox spacing="12"
+                  style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-radius: 5;">
+                <Label text="Produktuaren xehetasunak"
+                       style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+
+                <VBox spacing="8">
+                    <VBox spacing="2">
+                        <Label text="Izena *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                        <TextField fx:id="txtIzena" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 6;"/>
+                    </VBox>
+
+                    <HBox spacing="10">
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Prezioa *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                            <TextField fx:id="txtPrezioa" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 6;"/>
+                        </VBox>
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="MotaId *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                            <TextField fx:id="txtMotaId" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 6;"/>
+                        </VBox>
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Stock *" style="-fx-font-weight: bold; -fx-text-fill: #4a5568;"/>
+                            <TextField fx:id="txtStock" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 6;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button fx:id="btnCancel"
+                            text="Utzi"
+                            style="-fx-background-color: #a0aec0; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 6 15;"/>
+                    <Button fx:id="btnDelete"
+                            text="Ezabatu"
+                            style="-fx-background-color: #e53e3e; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 6 15;"/>
+                    <Button fx:id="btnSave"
+                            text="Gorde"
+                            style="-fx-background-color: #3182ce; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 6 15;"/>
+                </HBox>
+
+                <Separator/>
+
+                <Label text="Produktuaren osagaiak"
+                       style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+
+                <TableView fx:id="tableProduktuaOsagaiak" prefHeight="220"
+                           style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-radius: 5;">
+                    <columns>
+                        <TableColumn fx:id="colOsIzena" text="Osagaia" prefWidth="220"/>
+                        <TableColumn fx:id="colOsKant" text="Kant." prefWidth="80">
+                            <style>
+                                <String fx:value="-fx-alignment: CENTER;"/>
+                            </style>
+                        </TableColumn>
+                        <TableColumn fx:id="colOsStock" text="Stock" prefWidth="80">
+                            <style>
+                                <String fx:value="-fx-alignment: CENTER;"/>
+                            </style>
+                        </TableColumn>
+                    </columns>
+                </TableView>
+
+                <HBox spacing="10">
+                    <ComboBox fx:id="comboOsagaiak" HBox.hgrow="ALWAYS" promptText="Osagaia hautatu..."/>
+                    <TextField fx:id="txtKantitatea" prefWidth="90" promptText="Kant."/>
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button fx:id="btnGehituOsagaia"
+                            text="Gehitu"
+                            style="-fx-background-color: #38a169; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 6 15;"/>
+                    <Button fx:id="btnEguneratuOsagaia"
+                            text="Eguneratu"
+                            style="-fx-background-color: #4299e1; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 6 15;"/>
+                    <Button fx:id="btnKenduOsagaia"
+                            text="Kendu"
+                            style="-fx-background-color: #e53e3e; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 6 15;"/>
+                </HBox>
+            </VBox>
+        </SplitPane>
+    </center>
+</BorderPane>

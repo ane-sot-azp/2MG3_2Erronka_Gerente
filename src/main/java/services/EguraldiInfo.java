@@ -1,37 +1,40 @@
 package services;
 
+import com.google.gson.annotations.SerializedName;
+
 public class EguraldiInfo {
-    private final String hiria;
+    @SerializedName("astekoEguna")
     private final String egunaTestua;
-    private final String azkenEguneraketa;
-    private final int tenpMin;
-    private final int tenpMax;
-    private final String deskribapenaEu;
-    private final String sinboloKodea;
+
+    @SerializedName("zeruEgoera")
+    private final String zeruEgoera;
+
+    @SerializedName("tenperaturaMinimoa")
+    private final String tenpMin;
+
+    @SerializedName("tenperaturaMaximoa")
+    private final String tenpMax;
+
+    @SerializedName("prezipitazioProbabilitatea")
+    private final String prezipitazioa;
 
     public EguraldiInfo(
-            String hiria,
             String egunaTestua,
-            String azkenEguneraketa,
-            int tenpMin,
-            int tenpMax,
-            String deskribapenaEu,
-            String sinboloKodea
+            String zeruEgoera,
+            String tenpMin,
+            String tenpMax,
+            String prezipitazioa
     ) {
-        this.hiria = hiria;
         this.egunaTestua = egunaTestua;
-        this.azkenEguneraketa = azkenEguneraketa;
+        this.zeruEgoera = zeruEgoera;
         this.tenpMin = tenpMin;
         this.tenpMax = tenpMax;
-        this.deskribapenaEu = deskribapenaEu;
-        this.sinboloKodea = sinboloKodea;
+        this.prezipitazioa = prezipitazioa;
     }
 
-    public String getHiria() { return hiria; }
     public String getEgunaTestua() { return egunaTestua; }
-    public String getAzkenEguneraketa() { return azkenEguneraketa; }
-    public int getTenpMin() { return tenpMin; }
-    public int getTenpMax() { return tenpMax; }
-    public String getDeskribapenaEu() { return deskribapenaEu; }
-    public String getSinboloKodea() { return sinboloKodea; }
+    public String getZeruEgoera() { return zeruEgoera; }
+    public String getTenpMin() { return tenpMin; }
+    public String getTenpMax() { return tenpMax; }
+    public String getPrezipitazioa() { return prezipitazioa; }
 }

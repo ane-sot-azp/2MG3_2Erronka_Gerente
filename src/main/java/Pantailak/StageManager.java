@@ -801,10 +801,10 @@ public class StageManager {
                 scene.getStylesheets().add(APP_CSS);
                 eguraldiWindow.setScene(scene);
 
-                eguraldiWindow.setMinWidth(540);
-                eguraldiWindow.setMinHeight(420);
-                eguraldiWindow.setWidth(640);
-                eguraldiWindow.setHeight(460);
+                eguraldiWindow.setMinWidth(1100);
+                eguraldiWindow.setMinHeight(560);
+                eguraldiWindow.setWidth(1220);
+                eguraldiWindow.setHeight(620);
                 eguraldiWindow.setResizable(false);
                 eguraldiWindow.centerOnScreen();
 

@@ -169,6 +169,21 @@
                                     -fx-background-radius: 8;
                                     -fx-cursor: hand;
                                     -fx-effect: dropshadow(gaussian, rgba(94,27,79,0.2), 6, 0, 0, 2);"/>
+
+                        <Button fx:id="btnProduktuak"
+                                prefWidth="130"
+                                minWidth="130"
+                                prefHeight="44"
+                                text="Produktuak"
+                                onAction="#onProduktuakClick"
+                                style="
+                                    -fx-background-color: #5E1B4F;
+                                    -fx-text-fill: white;
+                                    -fx-font-family: 'Segoe UI';
+                                    -fx-font-size: 14px;
+                                    -fx-background-radius: 8;
+                                    -fx-cursor: hand;
+                                    -fx-effect: dropshadow(gaussian, rgba(94,27,79,0.2), 6, 0, 0, 2);"/>
                     </children>
                 </HBox>
             </children>

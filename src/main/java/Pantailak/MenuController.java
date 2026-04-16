@@ -122,6 +122,20 @@ public class MenuController {
     }
 
     @FXML
+    private void onProduktuakClick(ActionEvent event) {
+        try {
+            StageManager.switchStage(
+                    getCurrentStage(event),
+                    "produktuak-view.fxml",
+                    "Produktuak",
+                    true
+            );
+        } catch (IOException e) {
+            erroreaErakutsi("Errorea produktuak irekitzean: " + e.getMessage());
+        }
+    }
+
+    @FXML
     private void onMahaiakClick(ActionEvent event) {
         try {
             StageManager.switchStage(

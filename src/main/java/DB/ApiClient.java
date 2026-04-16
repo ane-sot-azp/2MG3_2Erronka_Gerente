@@ -8,7 +8,8 @@ public class ApiClient {
 
     private static final String BASE_URL = System.getProperty(
             "API_BASE_URL",
-            System.getenv().getOrDefault("API_BASE_URL", "http://192.168.10.5:5000")
+            System.getenv().getOrDefault("API_BASE_URL", "http://localhost:5101")
+            //System.getenv().getOrDefault("API_BASE_URL", "http://192.168.10.5:5000")
     );
     private static final HttpClient client = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
