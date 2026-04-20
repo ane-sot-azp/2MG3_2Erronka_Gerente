@@ -20,9 +20,15 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import services.SessionContext;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class StageManager {
@@ -45,6 +51,8 @@ public class StageManager {
     private static final String COLOR_GORRIA = "#5B1C1C";
     private static final String CHAT_SERVER_HOST = "192.168.10.5";
     private static final int CHAT_SERVER_PORT = 5555;
+    private static final String CHAT_SHARED_KEY = "OSIS_TXAT_GAKO_2026";
+    private static final String ENCRYPTION_PREFIX = "ENC|";
 
     
     private static Stage floatingStage = null;
@@ -294,7 +302,7 @@ public class StageManager {
             while (isChatServerConnected && chatSocket != null && chatSocket.isConnected() &&
                     (message = chatReader.readLine()) != null) {
 
-                final String finalMessage = message;
+                final String finalMessage = decryptIncomingMessage(message);
                 System.out.println("DEBUG: Mezua jasota: " + finalMessage);
 
                 Platform.runLater(() -> {
@@ -351,10 +359,18 @@ public class StageManager {
 
     public static void sendChatMessage(String message) {
         if (chatWriter != null && isChatServerConnected) {
-            
-            
-            System.out.println("DEBUG: Mezua bidaltzen: " + message);
-            chatWriter.println(message);
+            try {
+                String encryptedMessage = encryptChatMessage(message);
+                System.out.println("DEBUG: Mezua bidaltzen: " + encryptedMessage);
+                chatWriter.println(encryptedMessage);
+            } catch (Exception e) {
+                String errorMessage = message + " (ezin bidali - zifratze errorea)";
+                saveMessageToSession(errorMessage);
+
+                if (currentChatController != null) {
+                    Platform.runLater(() -> currentChatController.addStyledMessageToContainer(errorMessage));
+                }
+            }
         } else {
             
             String errorMessage = message + " (ezin bidali - ez dago konexiorik)";
@@ -846,6 +862,61 @@ public class StageManager {
         unreadMessages.clear();
         updateNotificationBadge();
     }
+
+    private static String decryptIncomingMessage(String message) {
+        if (message == null || message.isBlank() || !message.contains(": ")) {
+            return message;
+        }
+
+        int separatorIndex = message.indexOf(": ");
+        String sender = message.substring(0, separatorIndex);
+        String payload = message.substring(separatorIndex + 2);
+
+        if (!payload.startsWith(ENCRYPTION_PREFIX)) {
+            return message;
+        }
+
+        try {
+            return sender + ": " + decryptChatMessage(payload);
+        } catch (Exception e) {
+            return sender + ": [Ezin izan da mezua deszifratu]";
+        }
+    }
+
+    private static String encryptChatMessage(String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        byte[] iv = new byte[16];
+        java.security.SecureRandom.getInstanceStrong().nextBytes(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, getSharedKey(), new IvParameterSpec(iv));
+
+        byte[] encrypted = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        return ENCRYPTION_PREFIX
+                + Base64.getEncoder().encodeToString(iv)
+                + "|"
+                + Base64.getEncoder().encodeToString(encrypted);
+    }
+
+    private static String decryptChatMessage(String payload) throws Exception {
+        String[] parts = payload.split("\\|", 3);
+        if (parts.length != 3 || !"ENC".equals(parts[0])) {
+            throw new IllegalArgumentException("Mezu zifratua ez da baliozkoa");
+        }
+
+        byte[] iv = Base64.getDecoder().decode(parts[1]);
+        byte[] encrypted = Base64.getDecoder().decode(parts[2]);
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, getSharedKey(), new IvParameterSpec(iv));
+        byte[] decrypted = cipher.doFinal(encrypted);
+        return new String(decrypted, StandardCharsets.UTF_8);
+    }
+
+    private static SecretKeySpec getSharedKey() throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] key = digest.digest(CHAT_SHARED_KEY.getBytes(StandardCharsets.UTF_8));
+        return new SecretKeySpec(key, "AES");
+    }
+
 
     private static void updateNotificationBadge() {
         Platform.runLater(() -> {
