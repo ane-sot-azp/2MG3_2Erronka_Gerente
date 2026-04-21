@@ -14,9 +14,15 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -24,10 +30,12 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 public class TxatController implements Initializable {
+    private static final String FILE_MESSAGE_PREFIX = "FILE_READY|";
 
     @FXML private TextField txtInput;
     @FXML private Label lblErabiltzaile;
     @FXML private Label lblKontaktua;
+    @FXML private Button btnErantsi;
     @FXML private Button btnBidali;
     @FXML private Button btnGarbitu;
     @FXML private Button btnItxi;
@@ -37,6 +45,7 @@ public class TxatController implements Initializable {
 
     private String erabiltzaileIzena = null;
     private Consumer<String> sendMessageCallback = null;
+    private Consumer<File> sendFileCallback = null;
     private DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     @Override
@@ -48,6 +57,7 @@ public class TxatController implements Initializable {
         applyDesignStyles();
 
         txtInput.setOnAction(e -> bidaliMezua());
+        btnErantsi.setOnAction(e -> erantsiFitxategia());
         btnBidali.setOnAction(e -> bidaliMezua());
         btnGarbitu.setOnAction(e -> garbituTxata());
         btnItxi.setOnAction(e -> itxiTxata());
@@ -66,9 +76,10 @@ public class TxatController implements Initializable {
     }
 
         public void initializeWithData(String username, List<String> sessionMessages,
-                                   Consumer<String> sendCallback) {
+                                   Consumer<String> sendCallback, Consumer<File> sendFileCallback) {
         this.erabiltzaileIzena = username;
         this.sendMessageCallback = sendCallback;
+        this.sendFileCallback = sendFileCallback;
 
         Platform.runLater(() -> {
             lblErabiltzaile.setText(username);
@@ -99,6 +110,7 @@ public class TxatController implements Initializable {
                 String sender = extractSender(rawMessage);
                 String content = extractContent(rawMessage, messageType);
                 String time = LocalDateTime.now().format(timeFormatter);
+                FileMessage fileMessage = parseFileMessage(content);
 
                                 HBox messageContainer = new HBox();
                 messageContainer.setPadding(new Insets(5, 10, 5, 10));
@@ -118,12 +130,26 @@ public class TxatController implements Initializable {
                                 "-fx-background-color: #F3863A;" +                                         "-fx-background-radius: 18 18 4 18;" +                                         "-fx-effect: dropshadow(gaussian, rgba(243, 134, 58, 0.2), 5, 0, 0, 2);"
                         );
 
-                                                Text selfContent = new Text(content);
+                        if (fileMessage != null) {
+                            Text selfFileTitle = new Text("Fitxategia: " + fileMessage.fileName + " (" + fileMessage.size + ")");
+                            selfFileTitle.setFill(Color.WHITE);
+                            selfFileTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 13));
+                            selfFileTitle.setWrappingWidth(380);
+
+                            HBox actions = createFileActions(fileMessage, true);
+                            Text selfMeta = new Text("Zu • " + time);
+                            selfMeta.setFill(Color.rgb(255, 255, 255, 0.8));
+                            selfMeta.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 10));
+                            messageBubble.getChildren().addAll(selfFileTitle, actions, selfMeta);
+                            break;
+                        }
+
+                        Text selfContent = new Text(content);
                         selfContent.setFill(Color.WHITE);
                         selfContent.setFont(Font.font("Segoe UI", 13));
                         selfContent.setWrappingWidth(380);
 
-                                                Text selfMeta = new Text("Zu • " + time);
+                        Text selfMeta = new Text("Zu • " + time);
                         selfMeta.setFill(Color.rgb(255, 255, 255, 0.8));
                         selfMeta.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 10));
 
@@ -141,18 +167,27 @@ public class TxatController implements Initializable {
                                         "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 3, 0, 0, 1);"
                         );
 
-                                                Text otherName = new Text(sender);
+                        Text otherName = new Text(sender);
                         otherName.setFill(Color.web("#1D505B"));                         otherName.setFont(Font.font("Segoe UI", FontWeight.BOLD, 11));
 
-                                                Text otherContent = new Text(content);
-                        otherContent.setFill(Color.web("#2C3E50"));                         otherContent.setFont(Font.font("Segoe UI", 13));
-                        otherContent.setWrappingWidth(380);
-
-                                                Text otherTime = new Text(" • " + time);
+                        Text otherTime = new Text(" • " + time);
                         otherTime.setFill(Color.rgb(149, 165, 166, 0.8));                         otherTime.setFont(Font.font("Segoe UI", 10));
 
-                                                TextFlow otherMeta = new TextFlow(otherName, otherTime);
+                        TextFlow otherMeta = new TextFlow(otherName, otherTime);
 
+                        if (fileMessage != null) {
+                            Text otherFileTitle = new Text("Fitxategia: " + fileMessage.fileName + " (" + fileMessage.size + ")");
+                            otherFileTitle.setFill(Color.web("#2C3E50"));
+                            otherFileTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 13));
+                            otherFileTitle.setWrappingWidth(380);
+                            HBox actions = createFileActions(fileMessage, false);
+                            messageBubble.getChildren().addAll(otherMeta, otherFileTitle, actions);
+                            break;
+                        }
+
+                        Text otherContent = new Text(content);
+                        otherContent.setFill(Color.web("#2C3E50"));                         otherContent.setFont(Font.font("Segoe UI", 13));
+                        otherContent.setWrappingWidth(380);
                         messageBubble.getChildren().addAll(otherMeta, otherContent);
                         break;
 
@@ -249,6 +284,19 @@ public class TxatController implements Initializable {
         return message;
     }
 
+    private FileMessage parseFileMessage(String content) {
+        if (content == null || !content.startsWith(FILE_MESSAGE_PREFIX)) {
+            return null;
+        }
+
+        String[] parts = content.split("\\|", 4);
+        if (parts.length != 4) {
+            return null;
+        }
+
+        return new FileMessage(parts[1], parts[2], parts[3]);
+    }
+
         private String extractContent(String message) {
         MessageType type = determineMessageType(message);
         return extractContent(message, type);
@@ -256,6 +304,79 @@ public class TxatController implements Initializable {
 
     private enum MessageType {
         SELF, OTHER, SYSTEM
+    }
+
+    private HBox createFileActions(FileMessage fileMessage, boolean selfMessage) {
+        HBox actions = new HBox(10);
+        actions.setAlignment(selfMessage ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+
+        Hyperlink downloadLink = new Hyperlink("Deskargatu");
+        downloadLink.setStyle(
+                "-fx-text-fill: " + (selfMessage ? "white" : "#1D505B") + ";" +
+                        "-fx-font-family: 'Segoe UI';" +
+                        "-fx-font-weight: bold;"
+        );
+        downloadLink.setOnAction(e -> downloadFileFromChat(fileMessage));
+
+        Hyperlink openLink = new Hyperlink("Ireki");
+        openLink.setStyle(
+                "-fx-text-fill: " + (selfMessage ? "white" : "#F3863A") + ";" +
+                        "-fx-font-family: 'Segoe UI';" +
+                        "-fx-font-weight: bold;"
+        );
+        openLink.setOnAction(e -> openFileFromChat(fileMessage));
+
+        actions.getChildren().addAll(downloadLink, openLink);
+        return actions;
+    }
+
+    private void downloadFileFromChat(FileMessage fileMessage) {
+        File source = new File(fileMessage.localPath);
+        if (!source.exists()) {
+            showFileAlert("Fitxategia ez dago eskuragarri.");
+            return;
+        }
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Gorde fitxategia");
+        chooser.setInitialFileName(fileMessage.fileName);
+        File destination = chooser.showSaveDialog((Stage) txtInput.getScene().getWindow());
+        if (destination == null) {
+            return;
+        }
+
+        try {
+            Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            showFileAlert("Fitxategia ondo gorde da.");
+        } catch (IOException e) {
+            showFileAlert("Ezin izan da fitxategia gorde.");
+        }
+    }
+
+    private void openFileFromChat(FileMessage fileMessage) {
+        File source = new File(fileMessage.localPath);
+        if (!source.exists()) {
+            showFileAlert("Fitxategia ez dago eskuragarri.");
+            return;
+        }
+
+        try {
+            if (!Desktop.isDesktopSupported()) {
+                showFileAlert("Sistema honek ez du fitxategiak zuzenean irekitzea onartzen.");
+                return;
+            }
+
+            Desktop.getDesktop().open(source);
+        } catch (IOException e) {
+            showFileAlert("Ezin izan da fitxategia ireki.");
+        }
+    }
+
+    private void showFileAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private void applyDesignStyles() {
@@ -295,6 +416,18 @@ public class TxatController implements Initializable {
                         "-fx-effect: dropshadow(gaussian, rgba(243, 134, 58, 0.3), 5, 0, 0, 1);"
         );
 
+        btnErantsi.setStyle(
+                "-fx-background-color: #C19A6B;" +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-family: 'Segoe UI'; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 13px; " +
+                        "-fx-background-radius: 4; " +
+                        "-fx-padding: 10 18 10 18; " +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(193, 154, 107, 0.3), 5, 0, 0, 1);"
+        );
+
         btnGarbitu.setStyle(
                 "-fx-background-color: #1D505B;" +
                         "-fx-text-fill: white; " +
@@ -323,6 +456,34 @@ public class TxatController implements Initializable {
     }
 
     private void setupHoverEffects() {
+        btnErantsi.setOnMouseEntered(e -> {
+            btnErantsi.setStyle(
+                    "-fx-background-color: #A88355;" +
+                            "-fx-text-fill: white; " +
+                            "-fx-font-family: 'Segoe UI'; " +
+                            "-fx-font-weight: bold; " +
+                            "-fx-font-size: 13px; " +
+                            "-fx-background-radius: 4; " +
+                            "-fx-padding: 10 18 10 18; " +
+                            "-fx-cursor: hand;" +
+                            "-fx-effect: dropshadow(gaussian, rgba(168, 131, 85, 0.35), 6, 0, 0, 2);"
+            );
+        });
+
+        btnErantsi.setOnMouseExited(e -> {
+            btnErantsi.setStyle(
+                    "-fx-background-color: #C19A6B;" +
+                            "-fx-text-fill: white; " +
+                            "-fx-font-family: 'Segoe UI'; " +
+                            "-fx-font-weight: bold; " +
+                            "-fx-font-size: 13px; " +
+                            "-fx-background-radius: 4; " +
+                            "-fx-padding: 10 18 10 18; " +
+                            "-fx-cursor: hand;" +
+                            "-fx-effect: dropshadow(gaussian, rgba(193, 154, 107, 0.3), 5, 0, 0, 1);"
+            );
+        });
+
                 btnBidali.setOnMouseEntered(e -> {
             btnBidali.setStyle(
                     "-fx-background-color: #E67E22;" +
@@ -435,6 +596,25 @@ public class TxatController implements Initializable {
     }
 
     @FXML
+    private void erantsiFitxategia() {
+        if (sendFileCallback == null) {
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Hautatu bidali nahi duzun fitxategia");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Onartutako fitxategiak", "*.pdf", "*.jpg", "*.jpeg", "*.png", "*.txt")
+        );
+
+        Stage stage = (Stage) txtInput.getScene().getWindow();
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        if (selectedFile != null) {
+            sendFileCallback.accept(selectedFile);
+        }
+    }
+
+    @FXML
     private void bidaliMezua() {
         String mezua = txtInput.getText().trim();
         if (mezua.isEmpty() || erabiltzaileIzena == null) return;
@@ -475,5 +655,17 @@ public class TxatController implements Initializable {
     private void itxiTxata() {
         Stage stage = (Stage) txtInput.getScene().getWindow();
         stage.close();
+    }
+
+    private static final class FileMessage {
+        private final String fileName;
+        private final String size;
+        private final String localPath;
+
+        private FileMessage(String fileName, String size, String localPath) {
+            this.fileName = fileName;
+            this.size = size;
+            this.localPath = localPath;
+        }
     }
 }

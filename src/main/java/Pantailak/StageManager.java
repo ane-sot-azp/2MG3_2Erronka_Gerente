@@ -28,8 +28,14 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class StageManager {
 
@@ -49,10 +55,18 @@ public class StageManager {
     private static final String COLOR_BEIGE = "#C19A6B";
     private static final String COLOR_ZURIA = "#F5F5F5";
     private static final String COLOR_GORRIA = "#5B1C1C";
-    private static final String CHAT_SERVER_HOST = "192.168.10.5";
+    private static final String CHAT_SERVER_HOST = "127.0.0.1";
     private static final int CHAT_SERVER_PORT = 5555;
     private static final String CHAT_SHARED_KEY = "OSIS_TXAT_GAKO_2026";
     private static final String ENCRYPTION_PREFIX = "ENC|";
+    private static final String FILE_START_PREFIX = "FILE_START|";
+    private static final String FILE_CHUNK_PREFIX = "FILE_CHUNK|";
+    private static final String FILE_END_PREFIX = "FILE_END|";
+    private static final String FILE_CANCEL_PREFIX = "FILE_CANCEL|";
+    private static final String FILE_MESSAGE_PREFIX = "FILE_READY|";
+    private static final int MAX_FILE_SIZE = 5 * 1024 * 1024;
+    private static final int FILE_CHUNK_SIZE = 8 * 1024;
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".pdf", ".jpg", ".jpeg", ".png", ".txt");
 
     
     private static Stage floatingStage = null;
@@ -72,6 +86,11 @@ public class StageManager {
     private static boolean isChatServerConnected = false;
     private static boolean isFirstConnection = true;
     private static boolean useFloatingChatButton = true;
+    private static final Object chatWriteLock = new Object();
+    private static final Map<String, IncomingFileTransfer> incomingFileTransfers =
+            Collections.synchronizedMap(new HashMap<>());
+    private static final Set<String> outgoingFileTransfers =
+            Collections.synchronizedSet(new HashSet<>());
 
     
     private static boolean isDragging = false;
@@ -254,7 +273,9 @@ public class StageManager {
                 isChatServerConnected = true;
 
                 
-                chatWriter.println(erabiltzaileIzena);
+                synchronized (chatWriteLock) {
+                    chatWriter.println(erabiltzaileIzena);
+                }
                 System.out.println("DEBUG: Erabiltzailea bidalita: " + erabiltzaileIzena);
 
                 
@@ -302,35 +323,14 @@ public class StageManager {
             while (isChatServerConnected && chatSocket != null && chatSocket.isConnected() &&
                     (message = chatReader.readLine()) != null) {
 
+                if (handleIncomingFileMessage(message)) {
+                    continue;
+                }
+
                 final String finalMessage = decryptIncomingMessage(message);
                 System.out.println("DEBUG: Mezua jasota: " + finalMessage);
 
-                Platform.runLater(() -> {
-                    
-                    saveMessageToSession(finalMessage);
-
-                    
-                    
-                    boolean isSystemMessage = finalMessage.toLowerCase().contains(" sartu da") ||
-                            finalMessage.toLowerCase().contains(" atera egin da") ||
-                            finalMessage.toLowerCase().contains(" konektatu da") ||
-                            finalMessage.toLowerCase().contains(" deskonektatu da");
-
-                    
-                    boolean isOwnMessage = finalMessage.startsWith(erabiltzaileIzena + ": ");
-
-                    
-                    if (!isOwnMessage && !isSystemMessage) {
-                        if (chatWindow == null || !chatWindow.isShowing()) {
-                            addUnreadMessage(finalMessage);
-                        }
-                    }
-
-                    
-                    if (currentChatController != null) {
-                        currentChatController.addStyledMessageToContainer(finalMessage);
-                    }
-                });
+                publishIncomingMessage(finalMessage);
             }
         } catch (IOException e) {
             System.err.println("DEBUG: Zerbitzariarekin konexioa itxita: " + e.getMessage());
@@ -351,6 +351,13 @@ public class StageManager {
         } catch (IOException e) {
             
         }
+        synchronized (incomingFileTransfers) {
+            for (IncomingFileTransfer transfer : incomingFileTransfers.values()) {
+                transfer.dispose();
+            }
+            incomingFileTransfers.clear();
+        }
+        outgoingFileTransfers.clear();
         saveSessionToFile();
         currentChatController = null; 
     }
@@ -362,7 +369,9 @@ public class StageManager {
             try {
                 String encryptedMessage = encryptChatMessage(message);
                 System.out.println("DEBUG: Mezua bidaltzen: " + encryptedMessage);
-                chatWriter.println(encryptedMessage);
+                synchronized (chatWriteLock) {
+                    chatWriter.println(encryptedMessage);
+                }
             } catch (Exception e) {
                 String errorMessage = message + " (ezin bidali - zifratze errorea)";
                 saveMessageToSession(errorMessage);
@@ -394,6 +403,14 @@ public class StageManager {
                 currentChatController.addStyledMessageToContainer(systemMessage);
             }
         });
+    }
+
+    public static void sendChatFile(File file) {
+        if (file == null) {
+            return;
+        }
+
+        new Thread(() -> sendChatFileInternal(file)).start();
     }
 
     public static List<String> getSessionMessages() {
@@ -465,7 +482,352 @@ public class StageManager {
         return tempDir + "osis_chat_" + safeUsername + ".session";
     }
 
-    
+    private static void publishIncomingMessage(String message) {
+        Platform.runLater(() -> {
+            saveMessageToSession(message);
+
+            boolean isSystemMessage = message.toLowerCase().contains(" sartu da") ||
+                    message.toLowerCase().contains(" atera egin da") ||
+                    message.toLowerCase().contains(" konektatu da") ||
+                    message.toLowerCase().contains(" deskonektatu da");
+
+            boolean isOwnMessage = erabiltzaileIzena != null && message.startsWith(erabiltzaileIzena + ": ");
+
+            if (!isOwnMessage && !isSystemMessage) {
+                if (chatWindow == null || !chatWindow.isShowing()) {
+                    addUnreadMessage(message);
+                }
+            }
+
+            if (currentChatController != null) {
+                currentChatController.addStyledMessageToContainer(message);
+            }
+        });
+    }
+
+    private static void publishLocalMessage(String message) {
+        saveMessageToSession(message);
+        Platform.runLater(() -> {
+            if (currentChatController != null) {
+                currentChatController.addStyledMessageToContainer(message);
+            }
+        });
+    }
+
+    private static void sendChatFileInternal(File file) {
+        if (chatWriter == null || !isChatServerConnected) {
+            publishLocalMessage(file.getName() + " (ezin bidali - ez dago konexiorik)");
+            return;
+        }
+
+        String sanitizedName = sanitizeFileName(file.getName());
+        String validationError = validateFile(sanitizedName, file.length());
+        if (validationError != null) {
+            publishLocalMessage("[Fitxategia baztertua] " + sanitizedName + " (" + validationError + ")");
+            return;
+        }
+
+        String fileId = UUID.randomUUID().toString().replace("-", "");
+        outgoingFileTransfers.add(fileId);
+
+        try (InputStream inputStream = new FileInputStream(file)) {
+            synchronized (chatWriteLock) {
+                chatWriter.println(FILE_START_PREFIX + fileId + "|" + sanitizedName + "|" + file.length() + "|" + getMimeType(sanitizedName));
+            }
+
+            byte[] buffer = new byte[FILE_CHUNK_SIZE];
+            int bytesRead;
+            int chunkIndex = 0;
+
+            while ((bytesRead = inputStream.read(buffer)) > 0) {
+                byte[] chunk = bytesRead == buffer.length ? buffer.clone() : java.util.Arrays.copyOf(buffer, bytesRead);
+                String chunkBase64 = Base64.getEncoder().encodeToString(chunk);
+                String encryptedChunk = encryptChatMessage(chunkBase64);
+
+                synchronized (chatWriteLock) {
+                    chatWriter.println(FILE_CHUNK_PREFIX + fileId + "|" + chunkIndex + "|" + encryptedChunk);
+                }
+
+                chunkIndex++;
+            }
+
+            synchronized (chatWriteLock) {
+                chatWriter.println(FILE_END_PREFIX + fileId);
+            }
+
+            publishLocalMessage(buildFileChatMessage(erabiltzaileIzena, sanitizedName, formatSize(file.length()), file.getAbsolutePath()));
+        } catch (Exception e) {
+            try {
+                synchronized (chatWriteLock) {
+                    if (chatWriter != null) {
+                        chatWriter.println(FILE_CANCEL_PREFIX + fileId);
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+
+            publishLocalMessage("[Errorea] Ezin izan da fitxategia bidali: " + sanitizedName);
+        } finally {
+            outgoingFileTransfers.remove(fileId);
+        }
+    }
+
+    private static boolean handleIncomingFileMessage(String message) {
+        if (message == null || message.isBlank()) {
+            return false;
+        }
+
+        if (message.startsWith(FILE_START_PREFIX)) {
+            return handleIncomingFileStart(message);
+        }
+
+        if (message.startsWith(FILE_CHUNK_PREFIX)) {
+            return handleIncomingFileChunk(message);
+        }
+
+        if (message.startsWith(FILE_END_PREFIX)) {
+            return handleIncomingFileEnd(message);
+        }
+
+        if (message.startsWith(FILE_CANCEL_PREFIX)) {
+            return handleIncomingFileCancel(message);
+        }
+
+        return false;
+    }
+
+    private static boolean handleIncomingFileStart(String message) {
+        String[] parts = message.split("\\|", 6);
+        if (parts.length != 6) {
+            return true;
+        }
+
+        String sender = parts[1];
+        String fileId = parts[2];
+        String fileName = sanitizeFileName(parts[3]);
+
+        if (outgoingFileTransfers.contains(fileId)) {
+            return true;
+        }
+
+        long size;
+        try {
+            size = Long.parseLong(parts[4]);
+        } catch (NumberFormatException e) {
+            publishIncomingMessage(sender + ": [Fitxategia baztertua] Tamaina baliogabea.");
+            return true;
+        }
+
+        String validationError = validateFile(fileName, size);
+        if (validationError != null) {
+            publishIncomingMessage(sender + ": [Fitxategia baztertua] " + fileName + " (" + validationError + ")");
+            return true;
+        }
+
+        synchronized (incomingFileTransfers) {
+            IncomingFileTransfer previous = incomingFileTransfers.remove(fileId);
+            if (previous != null) {
+                previous.dispose();
+            }
+
+            incomingFileTransfers.put(fileId, new IncomingFileTransfer(sender, fileId, fileName, size, parts[5]));
+        }
+
+        publishIncomingMessage(sender + ": [Fitxategia jasotzen] " + fileName + " (" + formatSize(size) + ")");
+        return true;
+    }
+
+    private static boolean handleIncomingFileChunk(String message) {
+        String[] parts = message.split("\\|", 5);
+        if (parts.length != 5) {
+            return true;
+        }
+
+        String sender = parts[1];
+        String fileId = parts[2];
+
+        if (outgoingFileTransfers.contains(fileId)) {
+            return true;
+        }
+
+        IncomingFileTransfer transfer;
+        synchronized (incomingFileTransfers) {
+            transfer = incomingFileTransfers.get(fileId);
+        }
+
+        if (transfer == null) {
+            return true;
+        }
+
+        try {
+            String chunkBase64 = decryptChatMessage(parts[4]);
+            byte[] chunkBytes = Base64.getDecoder().decode(chunkBase64);
+            transfer.write(chunkBytes);
+
+            if (transfer.size() > MAX_FILE_SIZE || transfer.size() > transfer.expectedSize()) {
+                throw new IllegalStateException("Fitxategiaren tamaina mugaz kanpo dago");
+            }
+        } catch (Exception e) {
+            removeIncomingTransfer(fileId);
+            publishIncomingMessage(sender + ": [Errorea] Ezin izan da fitxategia jaso.");
+        }
+
+        return true;
+    }
+
+    private static boolean handleIncomingFileEnd(String message) {
+        String[] parts = message.split("\\|", 3);
+        if (parts.length != 3) {
+            return true;
+        }
+
+        String sender = parts[1];
+        String fileId = parts[2];
+
+        if (outgoingFileTransfers.remove(fileId)) {
+            return true;
+        }
+
+        IncomingFileTransfer transfer = removeIncomingTransfer(fileId);
+        if (transfer == null) {
+            return true;
+        }
+
+        try {
+            if (transfer.size() != transfer.expectedSize()) {
+                throw new IllegalStateException("Tamaina ez dator bat");
+            }
+
+            File savedFile = saveIncomingFile(transfer);
+            publishIncomingMessage(buildFileChatMessage(sender, transfer.fileName(), formatSize(transfer.expectedSize()), savedFile.getAbsolutePath()));
+        } catch (Exception e) {
+            publishIncomingMessage(sender + ": [Errorea] Ezin izan da fitxategia gorde.");
+        } finally {
+            transfer.dispose();
+        }
+
+        return true;
+    }
+
+    private static boolean handleIncomingFileCancel(String message) {
+        String[] parts = message.split("\\|", 3);
+        if (parts.length != 3) {
+            return true;
+        }
+
+        if (outgoingFileTransfers.remove(parts[2])) {
+            return true;
+        }
+
+        IncomingFileTransfer transfer = removeIncomingTransfer(parts[2]);
+        if (transfer != null) {
+            transfer.dispose();
+        }
+
+        publishIncomingMessage(parts[1] + ": [Fitxategia ezeztatuta]");
+        return true;
+    }
+
+    private static IncomingFileTransfer removeIncomingTransfer(String fileId) {
+        synchronized (incomingFileTransfers) {
+            return incomingFileTransfers.remove(fileId);
+        }
+    }
+
+    private static String validateFile(String fileName, long size) {
+        String extension = getExtension(fileName);
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            return "Fitxategi mota hau ez dago baimenduta.";
+        }
+
+        if (size <= 0) {
+            return "Fitxategia hutsik dago.";
+        }
+
+        if (size > MAX_FILE_SIZE) {
+            return "Fitxategiak " + formatSize(MAX_FILE_SIZE) + " baino gehiago dauka.";
+        }
+
+        return null;
+    }
+
+    private static String sanitizeFileName(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return "fitxategia";
+        }
+
+        return fileName.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+    }
+
+    private static String getExtension(String fileName) {
+        int index = fileName.lastIndexOf('.');
+        if (index < 0) {
+            return "";
+        }
+        return fileName.substring(index).toLowerCase();
+    }
+
+    private static String getMimeType(String fileName) {
+        return switch (getExtension(fileName)) {
+            case ".pdf" -> "application/pdf";
+            case ".jpg", ".jpeg" -> "image/jpeg";
+            case ".png" -> "image/png";
+            case ".txt" -> "text/plain";
+            default -> "application/octet-stream";
+        };
+    }
+
+    private static String formatSize(long size) {
+        if (size >= 1024L * 1024L) {
+            return String.format(java.util.Locale.US, "%.2f MB", size / 1024d / 1024d);
+        }
+        if (size >= 1024L) {
+            return String.format(java.util.Locale.US, "%.2f KB", size / 1024d);
+        }
+        return size + " B";
+    }
+
+    private static String buildFileChatMessage(String sender, String fileName, String size, String path) {
+        return sender + ": " + FILE_MESSAGE_PREFIX + fileName + "|" + size + "|" + path;
+    }
+
+    private static File saveIncomingFile(IncomingFileTransfer transfer) throws IOException {
+        File directory = new File(System.getProperty("user.home"), "Documents/OSIS/TxatFitxategiak");
+        if (!directory.exists() && !directory.mkdirs()) {
+            throw new IOException("Ezin izan da karpeta sortu");
+        }
+
+        File target = createUniqueFile(directory, transfer.fileName());
+        try (OutputStream outputStream = new FileOutputStream(target)) {
+            transfer.writeTo(outputStream);
+        }
+        return target;
+    }
+
+    private static File createUniqueFile(File directory, String fileName) {
+        File target = new File(directory, fileName);
+        if (!target.exists()) {
+            return target;
+        }
+
+        String baseName = fileName;
+        String extension = "";
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex >= 0) {
+            baseName = fileName.substring(0, dotIndex);
+            extension = fileName.substring(dotIndex);
+        }
+
+        for (int i = 1; i <= 999; i++) {
+            File candidate = new File(directory, baseName + "_" + i + extension);
+            if (!candidate.exists()) {
+                return candidate;
+            }
+        }
+
+        return new File(directory, baseName + "_" + UUID.randomUUID() + extension);
+    }
+
 
     private static void createFloatingButton() {
         try {
@@ -753,7 +1115,8 @@ public class StageManager {
                 controller.initializeWithData(
                         erabiltzaileIzena,
                         getSessionMessages(),
-                        message -> sendChatMessage(message)
+                        message -> sendChatMessage(message),
+                        file -> sendChatFile(file)
                 );
 
                 chatWindow = new Stage();
@@ -1010,5 +1373,50 @@ public class StageManager {
                 System.err.println("Errorea kokapena ezartzen: " + e.getMessage());
             }
         });
+    }
+
+    private static final class IncomingFileTransfer {
+        private final String sender;
+        private final String fileId;
+        private final String fileName;
+        private final long expectedSize;
+        private final String mimeType;
+        private final ByteArrayOutputStream buffer;
+
+        private IncomingFileTransfer(String sender, String fileId, String fileName, long expectedSize, String mimeType) {
+            this.sender = sender;
+            this.fileId = fileId;
+            this.fileName = fileName;
+            this.expectedSize = expectedSize;
+            this.mimeType = mimeType;
+            this.buffer = new ByteArrayOutputStream((int) expectedSize);
+        }
+
+        private synchronized void write(byte[] chunk) throws IOException {
+            buffer.write(chunk);
+        }
+
+        private synchronized void writeTo(OutputStream outputStream) throws IOException {
+            buffer.writeTo(outputStream);
+        }
+
+        private synchronized long size() {
+            return buffer.size();
+        }
+
+        private long expectedSize() {
+            return expectedSize;
+        }
+
+        private String fileName() {
+            return fileName;
+        }
+
+        private void dispose() {
+            try {
+                buffer.close();
+            } catch (IOException ignored) {
+            }
+        }
     }
 }
