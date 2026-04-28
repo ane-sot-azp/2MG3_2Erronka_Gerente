@@ -24,6 +24,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.net.URI;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -55,8 +56,8 @@ public class StageManager {
     private static final String COLOR_BEIGE = "#C19A6B";
     private static final String COLOR_ZURIA = "#F5F5F5";
     private static final String COLOR_GORRIA = "#5B1C1C";
-    private static final String CHAT_SERVER_HOST = "127.0.0.1";
-    private static final int CHAT_SERVER_PORT = 5555;
+    private static final String CHAT_SERVER_HOST = resolveChatHost();
+    private static final int CHAT_SERVER_PORT = resolveChatPort();
     private static final String CHAT_SHARED_KEY = "OSIS_TXAT_GAKO_2026";
     private static final String ENCRYPTION_PREFIX = "ENC|";
     private static final String FILE_START_PREFIX = "FILE_START|";
@@ -100,6 +101,50 @@ public class StageManager {
     private StageManager() {}
 
     
+
+    private static String resolveChatHost() {
+        String fromProp = System.getProperty("CHAT_SERVER_HOST");
+        if (fromProp != null && !fromProp.isBlank()) {
+            return fromProp.trim();
+        }
+
+        String fromEnv = System.getenv("CHAT_SERVER_HOST");
+        if (fromEnv != null && !fromEnv.isBlank()) {
+            return fromEnv.trim();
+        }
+
+        try {
+            String baseUrl = DB.ApiClient.getBaseUrl();
+            URI uri = URI.create(baseUrl);
+            String host = uri.getHost();
+            if (host != null && !host.isBlank()) {
+                return host;
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "127.0.0.1";
+    }
+
+    private static int resolveChatPort() {
+        String fromProp = System.getProperty("CHAT_SERVER_PORT");
+        if (fromProp != null && !fromProp.isBlank()) {
+            try {
+                return Integer.parseInt(fromProp.trim());
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        String fromEnv = System.getenv("CHAT_SERVER_PORT");
+        if (fromEnv != null && !fromEnv.isBlank()) {
+            try {
+                return Integer.parseInt(fromEnv.trim());
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        return 5555;
+    }
 
     private static Image loadChatIcon() {
         try {
