@@ -40,10 +40,18 @@
 
             <Label fx:id="lblHiria" text="Udalerria - Probintzia" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1D505B;"/>
 
-            <ScrollPane fitToWidth="false" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED"
+            <Label text="Gaur" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #1D505B;"/>
+
+            <VBox fx:id="pnlGaur"
+                  spacing="14"
+                  style="-fx-padding: 18; -fx-background-color: white; -fx-border-color: #d9d9d9; -fx-border-radius: 10; -fx-background-radius: 10;"/>
+
+            <Label text="Hurrengo egunak" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #1D505B;"/>
+
+            <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED"
                         style="-fx-background-color: transparent; -fx-background: transparent;">
                 <content>
-                    <FlowPane fx:id="pnlEgunak"
+                    <FlowPane fx:id="pnlHurrengoEgunak"
                               hgap="18"
                               vgap="18"
                               prefWrapLength="1200"

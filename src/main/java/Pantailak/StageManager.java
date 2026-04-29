@@ -1233,11 +1233,13 @@ public class StageManager {
                 scene.getStylesheets().add(APP_CSS);
                 eguraldiWindow.setScene(scene);
 
-                eguraldiWindow.setMinWidth(1100);
-                eguraldiWindow.setMinHeight(560);
-                eguraldiWindow.setWidth(1220);
-                eguraldiWindow.setHeight(620);
-                eguraldiWindow.setResizable(false);
+                double screenWidth = javafx.stage.Screen.getPrimary().getVisualBounds().getWidth();
+                double screenHeight = javafx.stage.Screen.getPrimary().getVisualBounds().getHeight();
+                eguraldiWindow.setMinWidth(1200);
+                eguraldiWindow.setMinHeight(700);
+                eguraldiWindow.setWidth(screenWidth * 0.92);
+                eguraldiWindow.setHeight(screenHeight * 0.9);
+                eguraldiWindow.setResizable(true);
                 eguraldiWindow.centerOnScreen();
 
                 eguraldiWindow.setOnCloseRequest(e -> eguraldiWindow = null);

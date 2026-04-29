@@ -1,6 +1,8 @@
 package services;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EguraldiInfo {
     @SerializedName("astekoEguna")
@@ -18,18 +20,23 @@ public class EguraldiInfo {
     @SerializedName("prezipitazioProbabilitatea")
     private final String prezipitazioa;
 
+    @SerializedName("xehetasunak")
+    private final List<EguraldiTarteInfo> xehetasunak;
+
     public EguraldiInfo(
             String egunaTestua,
             String zeruEgoera,
             String tenpMin,
             String tenpMax,
-            String prezipitazioa
+            String prezipitazioa,
+            List<EguraldiTarteInfo> xehetasunak
     ) {
         this.egunaTestua = egunaTestua;
         this.zeruEgoera = zeruEgoera;
         this.tenpMin = tenpMin;
         this.tenpMax = tenpMax;
         this.prezipitazioa = prezipitazioa;
+        this.xehetasunak = xehetasunak == null ? new ArrayList<>() : xehetasunak;
     }
 
     public String getEgunaTestua() { return egunaTestua; }
@@ -37,4 +44,5 @@ public class EguraldiInfo {
     public String getTenpMin() { return tenpMin; }
     public String getTenpMax() { return tenpMax; }
     public String getPrezipitazioa() { return prezipitazioa; }
+    public List<EguraldiTarteInfo> getXehetasunak() { return xehetasunak; }
 }
