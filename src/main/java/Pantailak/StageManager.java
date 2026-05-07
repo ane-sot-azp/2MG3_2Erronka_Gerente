@@ -372,6 +372,10 @@ public class StageManager {
                     continue;
                 }
 
+                //final String finalMessage = message;
+
+                //publishIncomingMessage(finalMessage);
+
                 final String finalMessage = decryptIncomingMessage(message);
                 System.out.println("DEBUG: Mezua jasota: " + finalMessage);
 
